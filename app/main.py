@@ -698,6 +698,23 @@ async def robots_txt() -> Response:
     )
 
 
+@app.get("/robots.txt", tags=["System"], include_in_schema=False)
+async def robots_txt() -> Response:
+    """Serve robots.txt for crawlers and smoke tests."""
+    return Response(
+        content=(
+            "User-agent: *\n"
+            "Allow: /\n"
+            "Disallow: /admin\n"
+            "Disallow: /v1\n"
+            "Disallow: /billing\n"
+            "Disallow: /public/request-key\n"
+        ),
+        media_type="text/plain",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
+
+
 @app.head("/", tags=["System"], include_in_schema=False)
 async def head_root() -> Response:
     """HEAD / for uptime monitors. Returns 200, no body. Avoids 405 in logs."""
