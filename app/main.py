@@ -118,7 +118,7 @@ except ImportError:
 # CORE ROUTERS
 # ==============================================================================
 
-from app.routers import admin, audit, diff, health
+from app.routers import admin, audit, diff, health, tribunal
 
 # ==============================================================================
 # OPTIONAL SAS ROUTERS
@@ -606,6 +606,7 @@ app.add_middleware(
 # ==============================================================================
 
 app.include_router(health.router, tags=["System"])
+app.include_router(tribunal.router, tags=["Tribunal"])
 app.include_router(audit.router, prefix="/v1", tags=["Detection"])
 app.include_router(diff.router, prefix="/v1", tags=["Forensic Diff"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
