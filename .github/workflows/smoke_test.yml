@@ -124,6 +124,19 @@ jobs:
           cat /tmp/interaction_stats.json | jq -e '.privacy.raw_api_keys_stored == false'
           cat /tmp/interaction_stats.json | jq -e '.privacy.public_stats_are_aggregated == true'
 
+      - name: Check /v2/audit (tribunal endpoint)
+        run: |
+          set -e
+          code=$(curl -sS -o /tmp/tribunal.json -w "%{http_code}" -X POST "$SAS_BASE_URL/v2/audit" -H "Content-Type: application/json" -H "X-API-Key: $SAS_API_KEY" -d '{"source":"The Eiffel Tower is in Paris, France.","response":"The Eiffel Tower is in Berlin, Germany."}' || true)
+          echo "HTTP $code"
+          cat /tmp/tribunal.json || true
+          test "$code" = "200"
+          cat /tmp/tribunal.json | jq -e '.status == "ok"'
+          cat /tmp/tribunal.json | jq -e '.zona != null'
+          cat /tmp/tribunal.json | jq -e '.isi_final != null'
+          cat /tmp/tribunal.json | jq -e '.kappa_d == 0.56'
+          cat /tmp/tribunal.json | jq -e '.codigo_zona != null'
+
       - name: Check public activity
         run: |
           set -e

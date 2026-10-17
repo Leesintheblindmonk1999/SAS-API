@@ -685,7 +685,7 @@ under the terms of this license.
 
 Any use, implementation, or distribution of the κD constant 
 (whether in source code, binary form, documentation, or as a numerical 
-threshold value of 0.56) for semantic invariance detection, hallucination 
+threshold value of 0.56, the κR = 0.15 collapse threshold, or the SAS Multimetric Tribunal v1.1.0 architecture (7-module cascade with R3.1 Differential Guard) for semantic invariance detection, hallucination 
 detection, or similar purposes must:
 
 1. Explicitly attribute the discovery to the author: Gonzalo Emir Durante.

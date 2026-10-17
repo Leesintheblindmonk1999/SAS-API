@@ -103,12 +103,24 @@ Run the benchmark:
 python tests/benchmark_runner.py
 ```
 
+## SAS Multimetric Tribunal
+
+This repository now includes the **SAS Multimetric Tribunal v1.1.0** at `/v2/audit`.
+
+The tribunal classifies (source, response) pairs into 3 structural zones using 7 detection modules with cascading multiplicative penalty, plus an optional R3.1 Differential Guard.
+
+Full repository: [https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+
+**Paper:** DOI 10.32388/T420IV (Qeios) — Round 5, Minor Revisions
+
 ## Core Integrity Rules
 
 When contributing to SAS, do not change the following without explicit discussion:
 
-- `κD = 0.56`
+- `κD = 0.56` (coherence threshold)
+- `κR = 0.15` (collapse threshold)
 - ISI scoring semantics
+- Tribunal module weights (lexical 0.35, stg 0.25, flow 0.12, negation 0.08, cre 0.12, arithmetic 0.04, reference 0.04)
 - TDA core behavior
 - NIG behavior
 - E9-E12 penalty semantics
