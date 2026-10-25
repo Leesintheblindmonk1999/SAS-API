@@ -128,6 +128,41 @@ def _veredicto_to_response(
     )
 
 
+@router.get(
+    "/v2/audit",
+    summary="Help: how to use the tribunal endpoint",
+    include_in_schema=False,
+)
+async def tribunal_help():
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": "This endpoint requires POST, not GET.",
+            "usage": {
+                "method": "POST",
+                "url": "/v2/audit",
+                "headers": {
+                    "X-API-Key": "your_api_key_here",
+                    "Content-Type": "application/json",
+                },
+                "body": {
+                    "source": "Original text to audit against",
+                    "response": "Response text to evaluate",
+                    "enable_r3_1": True,
+                    "kappa_d": 0.56,
+                    "kappa_r": 0.15,
+                },
+                "how_to_get_a_key": {
+                    "cli": "pip install sas-client && sas request-key --email you@example.com",
+                    "http": "POST https://sas-api.onrender.com/public/request-key",
+                    "landing": "https://leesintheblindmonk1999.github.io/sas-landing/#access",
+                },
+            },
+        },
+    )
+
+
 @router.post(
     "/v2/audit",
     response_model=TribunalResponse,
