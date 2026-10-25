@@ -145,6 +145,10 @@ def _validation_response(
     invalid_fields: list[str] | None = None,
     status_code: int = 422,
 ) -> JSONResponse:
+    logger.warning(
+        "request_key_validation_failure reason=%s status=%s missing=%s invalid=%s",
+        reason, status_code, missing_fields or [], invalid_fields or [],
+    )
     return JSONResponse(
         status_code=status_code,
         content={
@@ -402,6 +406,12 @@ async def _request_key_impl(request: Request) -> RequestKeyResponse | JSONRespon
     email_present = email_value is not None and str(email_value).strip() != ""
     name_present = name_value is not None and str(name_value).strip() != ""
     email_valid = _safe_email_valid(email_value)
+
+    logger.info(
+        "request_key_payload email_present=%s email_valid=%s name_present=%s json_valid=%s content_type=%s",
+        email_present, email_valid, name_present, json_valid,
+        request.headers.get("content-type", "missing"),
+    )
 
     if not email_present:
         await _record_request_key_validation_failure(
