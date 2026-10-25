@@ -1049,11 +1049,21 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
     """Global exception handler — never exposes internals."""
     request_id = getattr(request.state, "request_id", "unknown")
 
+    # Preserve HTTPException status code and detail (e.g. 429 from rate limiter)
+    status_code = getattr(exc, "status_code", 500)
+    detail = getattr(exc, "detail", str(exc))
+
     logger.error(
         "unhandled_exception request_id=%s path=%s error=%s",
         request_id, request.url.path, str(exc),
         exc_info=True,
     )
+
+    if status_code != 500:
+        # Return the original error detail for non-500 (429, 405, etc.)
+        content = detail if isinstance(detail, dict) else {"error": str(detail)}
+        content["request_id"] = request_id
+        return JSONResponse(status_code=status_code, content=content)
 
     return JSONResponse(
         status_code=500,
