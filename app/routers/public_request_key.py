@@ -328,6 +328,31 @@ async def request_key_help(request: Request) -> JSONResponse:
     summary="Request a free SAS API key",
 )
 async def request_key(request: Request) -> RequestKeyResponse | JSONResponse:
+    try:
+        return await _request_key_impl(request)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("request_key_unhandled_error error=%s", exc)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Internal error",
+                "detail": f"Unexpected error: {exc}",
+                "reason": "unhandled_exception",
+                "fix": {
+                    "cli": 'sas request-key --email you@example.com --name "Your Name"',
+                    "curl": (
+                        "curl -X POST https://sas-api.onrender.com/public/request-key "
+                        "-H 'Content-Type: application/json' "
+                        "-d '{\"email\":\"you@example.com\",\"name\":\"Your Name\"}'"
+                    ),
+                },
+            },
+        )
+
+
+async def _request_key_impl(request: Request) -> RequestKeyResponse | JSONResponse:
     hashed_ip = ip_hash(request)
 
     check_rate_limit(
