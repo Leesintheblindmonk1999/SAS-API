@@ -1004,6 +1004,32 @@ async def validation_exception_handler(
             },
         }
 
+    elif path == "/v2/audit":
+        message = "Invalid request. Expected JSON with 'source' and 'response', plus X-API-Key header."
+        fix = {
+            "curl": (
+                "curl -X POST https://sas-api.onrender.com/v2/audit "
+                "-H 'Content-Type: application/json' "
+                "-H 'X-API-Key: sas_your_key_here' "
+                "-d '{\"source\":\"The Eiffel Tower is in Paris.\","
+                "\"response\":\"The Eiffel Tower is in Berlin.\"}'"
+            ),
+            "cli": (
+                'sas tribunal "The Eiffel Tower is in Paris." '
+                '"The Eiffel Tower is in Berlin."'
+            ),
+            "required_json": {
+                "source": "The Eiffel Tower is in Paris.",
+                "response": "The Eiffel Tower is in Berlin.",
+            },
+            "required_header": "X-API-Key: sas_your_key_here",
+            "how_to_get_a_key": {
+                "cli": "pip install sas-client && sas request-key --email you@example.com",
+                "http": "POST https://sas-api.onrender.com/public/request-key",
+                "landing": "https://leesintheblindmonk1999.github.io/sas-landing/#access",
+            },
+        }
+
     content: dict[str, Any] = {
         "error": "Validation error",
         "message": message,
