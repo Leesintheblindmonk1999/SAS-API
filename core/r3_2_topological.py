@@ -29,6 +29,8 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 # CONSTANTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+MODULE_VERSION: str = "1.0.0"
+
 KAPPA_D: float = 0.56
 PARAPHRASE_RESCUE_BOOST: float = 0.15
 CONTRADICTION_VETO_PENALTY: float = -0.35
@@ -608,6 +610,26 @@ _VERB_CLUSTERS: Set[str] = {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# MODULE HASH (SHA-256 del contenido canónico del módulo)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_MODULE_CANONICAL: str = (
+    "r3_2_topological.py|"
+    + MODULE_VERSION + "|"
+    + "|".join(
+        str(v) for v in [
+            KAPPA_D, PARAPHRASE_RESCUE_BOOST, CONTRADICTION_VETO_PENALTY,
+            LEXICAL_OVERLAP_THRESHOLD, MIN_ANCHORED_COMPONENTS,
+            VERB_WEIGHT, AGENT_WEIGHT, PATIENT_WEIGHT,
+            COMPONENT_MATCH_THRESHOLD,
+        ]
+    )
+    + "|"
+    + "|".join(sorted(_VERB_CLUSTERS))
+)
+MODULE_HASH: str = hashlib.sha256(_MODULE_CANONICAL.encode("utf-8")).hexdigest()
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # PASSIVE VOICE PATTERN
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -917,6 +939,8 @@ def evaluate_r3_2(source: str, response: str, lexical_overlap_value: Optional[fl
         "n_source_triples": len(triples_a),
         "n_response_triples": len(triples_b),
         "audit_hash": audit_hash,
+        "module_hash": MODULE_HASH,
+        "module_version": MODULE_VERSION,
     }
 
 
