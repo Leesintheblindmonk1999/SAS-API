@@ -373,15 +373,19 @@ def compute_structural_delta(
 ) -> Dict:
     """Computa el delta estructural diferencial entre source y response.
 
-    Estrategia (v2, post-auditoría):
-      1. COMPRESSION CHECK — si la response es larga (ratio > 0.5),
-         el grounding no es informativo (la response incluye el contexto).
-         El guard se ABSTIENE: is_structurally_equivalent = None.
+    Estrategia (v5, κC — Compression Threshold continuo):
+      1. COMPRESSION CHECK + κC WEIGHT — el ratio de compresión modula
+         la confianza del grounding de forma continua:
+           κC_weight = max(0, 1 - CR/0.5) para CR ≤ 0.5, 0 para CR > 0.5
+         CR=0.0 → peso=1.0 (máxima confianza)
+         CR=0.5 → peso=0.0 (confianza cero)
+         CR>0.5 → peso=0.0 (response incluye contexto, grounding no informativo)
       2. GROUNDING CHECK — señal principal. Mide qué fracción de la
-         response está groundeada en el source. Solo aplica cuando la
-         response es corta (ratio ≤ 0.5).
-      3. Decisión: si grounding > threshold → equivalente.
-         Si no → no equivalente.
+         response está groundeada en el source.
+      3. Decisión: differential_score = grounding × κC_weight.
+         Si score ≥ threshold → equivalente. Si no → no equivalente.
+         Ya no hay abstinencia por compresión: el peso κC degrada
+         suavemente la señal en vez de descartarla.
 
     Args:
         source: Texto fuente (A, contexto + respuesta correcta).
@@ -390,8 +394,8 @@ def compute_structural_delta(
 
     Returns:
         Dict con differential_score, is_structurally_equivalent, y señales.
-        is_structurally_equivalent = None significa que el guard se
-        abstiene (response demasiado larga para grounding informativo).
+        is_structurally_equivalent = None solo en casos de respuesta corta
+        con entidad aislada (abstención por diseño).
     """
     # 0. Byte-identical check (fast path)
     if source == response:
@@ -403,65 +407,62 @@ def compute_structural_delta(
             "abstain_reason": None,
         }
 
-    # 1. COMPRESSION CHECK
+    # 1. COMPRESSION CHECK + κC WEIGHT
     compression = compute_compression_ratio(source, response)
     cr = compression["compression_ratio"]
 
-    # Si la response es larga (incluye contexto), el guard se abstiene
-    if cr > 0.5:
-        return {
-            "differential_score": 0.0,
-            "is_structurally_equivalent": None,  # abstiene
-            "grounding": None,
-            "compression": compression,
-            "abstain_reason": "response_too_long_for_grounding",
-        }
+    # κC: Continuous confidence weight based on compression ratio
+    # CR=0.0 → weight=1.0 (max confidence, grounding is fully informative)
+    # CR=0.5 → weight=0.0 (zero confidence, grounding is not informative)
+    # CR>0.5 → weight=0.0 (response includes context, grounding unreliable)
+    kappa_c_weight = max(0.0, 1.0 - cr / 0.5) if cr <= 0.5 else 0.0
 
-    # 2. GROUNDING CHECK (solo para responses cortas)
+    # 2. GROUNDING CHECK (siempre, incluso para responses largas)
     grounding = compute_grounding(source, response)
     gs = grounding["grounding_score"]
 
     # 3. Short-response handler (< 5 palabras)
     n_words = len(response.split())
     if n_words < 5:
-        # Umbral más estricto para respuestas cortas
         short_threshold = max(GROUNDING_THRESHOLD, 0.75) if n_words <= 2 else GROUNDING_THRESHOLD
         short_result = _handle_short_response(source, response, gs, threshold=short_threshold)
         equiv = short_result["is_structurally_equivalent"]
         reason = short_result["reason"]
 
         if equiv is None:
-            # Abstenerse
             return {
                 "differential_score": 0.0,
                 "is_structurally_equivalent": None,
                 "grounding": grounding,
                 "compression": compression,
                 "abstain_reason": f"short_response_{reason}",
+                "kappa_c_weight": round(kappa_c_weight, 6),
             }
         elif equiv:
-            differential_score = round(min(max(gs, 0.0), 1.0), 6)
+            differential_score = round(min(max(gs * kappa_c_weight, 0.0), 1.0), 6)
             return {
                 "differential_score": differential_score,
-                "is_structurally_equivalent": True,
+                "is_structurally_equivalent": differential_score >= grounding_threshold,
                 "grounding": grounding,
                 "compression": compression,
                 "abstain_reason": None,
                 "short_response_reason": reason,
+                "kappa_c_weight": round(kappa_c_weight, 6),
             }
         else:
-            differential_score = round(min(max(gs * 0.3, 0.0), 1.0), 6)
+            differential_score = round(min(max(gs * 0.3 * kappa_c_weight, 0.0), 1.0), 6)
             return {
                 "differential_score": differential_score,
-                "is_structurally_equivalent": False,
+                "is_structurally_equivalent": differential_score >= grounding_threshold,
                 "grounding": grounding,
                 "compression": compression,
                 "abstain_reason": None,
                 "short_response_reason": reason,
+                "kappa_c_weight": round(kappa_c_weight, 6),
             }
 
-    # 4. Para responses de 5+ palabras, grounding directo
-    differential_score = round(min(max(gs, 0.0), 1.0), 6)
+    # 4. Para responses de 5+ palabras, grounding con peso κC
+    differential_score = round(min(max(gs * kappa_c_weight, 0.0), 1.0), 6)
 
     return {
         "differential_score": differential_score,
@@ -469,6 +470,7 @@ def compute_structural_delta(
         "grounding": grounding,
         "compression": compression,
         "abstain_reason": None,
+        "kappa_c_weight": round(kappa_c_weight, 6),
     }
 
 
