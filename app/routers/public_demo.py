@@ -296,13 +296,13 @@ def _extract_manipulation_alert(raw: dict[str, Any]) -> dict[str, Any]:
 class DemoRequest(BaseModel):
     source: str = Field(
         ...,
-        min_length=3,
+        min_length=30,
         max_length=PUBLIC_DEMO_MAX_CHARS,
         description="Source text / texto fuente (ground truth)",
     )
     response: str = Field(
         ...,
-        min_length=3,
+        min_length=30,
         max_length=PUBLIC_DEMO_MAX_CHARS,
         description="AI response to audit / respuesta a auditar",
     )
@@ -424,15 +424,15 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
     source = payload.source.strip()
     response = payload.response.strip()
 
-    if len(source) < 3 or len(response) < 3:
+    if len(source) < 30 or len(response) < 30:
         raise HTTPException(
             status_code=422,
             detail={
                 "error": "Invalid demo payload",
-                "message": "Both source and response must contain at least 3 non-empty characters.",
+                "message": "Both source and response must contain at least 30 characters for a meaningful structural audit.",
                 "example": {
-                    "source": "The Eiffel Tower is located in Paris, France.",
-                    "response": "The Eiffel Tower is located in Berlin, Germany.",
+                    "source": "The Eiffel Tower is located in Paris, France, and was built in 1889.",
+                    "response": "The Eiffel Tower is located in Berlin, Germany, and was built in 1950.",
                 },
             },
         )
