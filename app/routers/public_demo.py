@@ -296,13 +296,13 @@ def _extract_manipulation_alert(raw: dict[str, Any]) -> dict[str, Any]:
 class DemoRequest(BaseModel):
     source: str = Field(
         ...,
-        min_length=10,
+        min_length=3,
         max_length=PUBLIC_DEMO_MAX_CHARS,
         description="Source text / texto fuente (ground truth)",
     )
     response: str = Field(
         ...,
-        min_length=10,
+        min_length=3,
         max_length=PUBLIC_DEMO_MAX_CHARS,
         description="AI response to audit / respuesta a auditar",
     )
@@ -312,10 +312,16 @@ class DemoResponse(BaseModel):
     status: str
     isi: float
     kappa_d: float
+    kappa_r: float
     verdict: str
+    zona: str
+    riesgo: str
     fired_modules: list[str]
     manipulation_alert: dict[str, Any]
     latency_ms: float
+    topological_score: float = 0.0
+    lexical_overlap: float = 0.0
+    audit_hash: str = ""
     demo: bool = True
 
 
@@ -418,12 +424,12 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
     source = payload.source.strip()
     response = payload.response.strip()
 
-    if len(source) < 10 or len(response) < 10:
+    if len(source) < 3 or len(response) < 3:
         raise HTTPException(
             status_code=422,
             detail={
                 "error": "Invalid demo payload",
-                "message": "Both source and response must contain at least 10 non-empty characters.",
+                "message": "Both source and response must contain at least 3 non-empty characters.",
                 "example": {
                     "source": "The Eiffel Tower is located in Paris, France.",
                     "response": "The Eiffel Tower is located in Berlin, Germany.",
@@ -487,6 +493,34 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
     fired_modules = _extract_fired_modules(raw)
     manipulation_alert = _extract_manipulation_alert(raw)
 
+    # ── Zona / Riesgo (3-zone classification) ─────────────────────────
+    kappa_d = float(getattr(settings, "kappa_d", 0.56))
+    kappa_r = float(getattr(settings, "kappa_r", 0.15))
+
+    if isi < kappa_r:
+        zona = "COLAPSO_ESTRUCTURAL"
+        riesgo = "CRITICAL"
+    elif isi < kappa_d:
+        zona = "RUPTURA_RECUPERABLE"
+        riesgo = "HIGH"
+    else:
+        zona = "COHERENTE"
+        riesgo = "LOW"
+
+    # ── R3.2 Topological score (optional module) ──────────────────────
+    topological_score = 0.0
+    lexical_overlap = 0.0
+    audit_hash = ""
+    try:
+        from core.r3_2_topological import evaluate_r3_2
+
+        r32 = evaluate_r3_2(source, response)
+        topological_score = float(r32.get("topological_score", 0.0))
+        lexical_overlap = float(r32.get("lexical_overlap", 0.0))
+        audit_hash = str(r32.get("audit_hash", ""))
+    except Exception:
+        pass
+
     logger.info(
         "public_demo ip_hash=%s src_len=%d res_len=%d isi=%.6f verdict=%s modules=%d latency_ms=%.2f",
         ip_hash,
@@ -501,10 +535,16 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
     return DemoResponse(
         status="ok",
         isi=round(isi, 6),
-        kappa_d=float(getattr(settings, "kappa_d", 0.56)),
+        kappa_d=kappa_d,
+        kappa_r=kappa_r,
         verdict=verdict,
+        zona=zona,
+        riesgo=riesgo,
         fired_modules=fired_modules,
         manipulation_alert=manipulation_alert,
         latency_ms=latency_ms,
+        topological_score=round(topological_score, 6),
+        lexical_overlap=round(lexical_overlap, 6),
+        audit_hash=audit_hash,
         demo=True,
     )
