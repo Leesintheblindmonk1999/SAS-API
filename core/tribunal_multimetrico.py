@@ -15,6 +15,22 @@ Arquitectura:
   · κD = 0.56 (validado, TAD EX-2026-18792778)
   · κR = validación experimental (barrido 0.15-0.40)
 
+CHANGELOG v1.2.0 (2026-10-13) — Integración R3.2 Topological Invariance
+------------------------------------------------------------------------------
+[NUEVO MÓDULO][R3.2] Topological Invariance (paraphrase rescue + contradiction veto)
+    Se integra el módulo topológico como módulo opcional del tribunal.
+    Detecta equivalencia semántica bajo paráfrasis cuando el solapamiento
+    léxico es casi nulo (lex < 0.30), vía tripletas canónicas
+    (Agente, Acción, Paciente, Polaridad).
+
+    Gate condicional:
+      - PARAPHRASE_RESCUE: lex < 0.30 y score topológico ≥ κD → +0.15
+      - CONTRADICTION_VETO: inversión de polaridad con score ≥ κD → −0.35
+      - INACTIVE: en cualquier otro caso → sin ajuste
+
+    El módulo se activa con R3_2_TOPOLOGICAL_ENABLED = True (por defecto).
+    Si no está disponible, el tribunal opera con los 7 módulos previos.
+
 CHANGELOG v1.1.0 (2026-10-12) — Integración R3.1 Differential Guard
 ------------------------------------------------------------------------------
 [NUEVO MÓDULO][R3.1] Differential Structural Guard (grounding + compression)
@@ -107,6 +123,24 @@ except ImportError:
         compute_structural_delta = None
         logger = logging.getLogger(__name__)
         logger.warning("R3.1 Differential Guard no disponible — tribunal opera con 6 módulos")
+
+# ════════════════════════════════════════════════════════════════════════════
+# R3.2 Topological Invariance (import opcional)
+# ════════════════════════════════════════════════════════════════════════════
+
+R3_2_TOPOLOGICAL_ENABLED: bool = True
+_R3_2_TOPOLOGICAL_AVAILABLE: bool = False
+try:
+    from core.r3_2_topological import evaluate_r3_2
+    _R3_2_TOPOLOGICAL_AVAILABLE = True
+except ImportError:
+    try:
+        from r3_2_topological import evaluate_r3_2
+        _R3_2_TOPOLOGICAL_AVAILABLE = True
+    except ImportError:
+        evaluate_r3_2 = None
+        logger = logging.getLogger(__name__)
+        logger.warning("R3.2 Topological Invariance no disponible — tribunal opera con 7 módulos")
 
 logger = logging.getLogger(__name__)
 
@@ -213,6 +247,7 @@ class VeredictoTribunal:
     arithmetic_penalty: float
     reference_penalty: float
     r3_1_guard: float
+    r3_2_topological: float
 
     # Métricas compuestas
     isi_hard: float          # Mínimo de métricas core
@@ -250,6 +285,7 @@ class VeredictoTribunal:
             "arithmetic_penalty": round(self.arithmetic_penalty, 6),
             "reference_penalty": round(self.reference_penalty, 6),
             "r3_1_guard": round(self.r3_1_guard, 6),
+            "r3_2_topological": round(self.r3_2_topological, 6),
             "isi_hard": round(self.isi_hard, 6),
             "isi_soft": round(self.isi_soft, 6),
             "isi_final": round(self.isi_final, 6),
@@ -578,6 +614,48 @@ class TribunalMultimetrico:
             logger.debug(f"Reference module error: {e}")
             return 1.0, False, f"ReferenceCheck: no disponible ({e})"
 
+    def _calcular_r3_2_topological(
+        self, text_a: str, text_b: str
+    ) -> Tuple[float, bool, str, Optional[Dict]]:
+        """Evalúa el R3.2 Topological Invariance.
+
+        Módulo opcional. Si no está disponible, devuelve 1.0 (sin
+        ajuste) y disparo=False. El ajuste aditivo se aplica en
+        evaluar() post-cascada.
+
+        Returns:
+            Tuple[valor, disparo, descripción, detalles_opcionales]
+        """
+        if not R3_2_TOPOLOGICAL_ENABLED or not _R3_2_TOPOLOGICAL_AVAILABLE:
+            return 1.0, False, "R3.2 Topological: no disponible", None
+
+        try:
+            result = evaluate_r3_2(text_a, text_b)
+            verdict = result["verdict"]
+            score = result["topological_score"]
+            lex = result["lexical_overlap"]
+            inv = result["polarity_inversion"]
+
+            if verdict == "PARAPHRASE_RESCUE":
+                return 1.0, True, (
+                    f"R3.2 Topological: PARAPHRASE_RESCUE "
+                    f"(score={score:.4f}, lex={lex:.4f})"
+                ), result
+            elif verdict == "CONTRADICTION_VETO":
+                return 1.0, True, (
+                    f"R3.2 Topological: CONTRADICTION_VETO "
+                    f"(score={score:.4f}, inv={inv})"
+                ), result
+            else:
+                return 1.0, False, (
+                    f"R3.2 Topological: INACTIVE "
+                    f"(score={score:.4f}, lex={lex:.4f})"
+                ), result
+
+        except Exception as e:
+            logger.debug(f"R3.2 Topological error: {e}")
+            return 1.0, False, f"R3.2 Topological: error ({e})", None
+
     def _calcular_r3_1_guard(
         self, text_a: str, text_b: str
     ) -> Tuple[float, bool, str, Optional[Dict]]:
@@ -666,6 +744,7 @@ class TribunalMultimetrico:
         arith_val, arith_fired, arith_desc = self._calcular_arithmetic_penalty(response)
         ref_val, ref_fired, ref_desc = self._calcular_reference_penalty(source, response)
         r3_val, r3_fired, r3_desc, r3_details = self._calcular_r3_1_guard(source, response)
+        r32_val, r32_fired, r32_desc, r32_details = self._calcular_r3_2_topological(source, response)
 
         # ── 2. Construir mapa de métricas ──────────────────────────────────
         metricas_raw = {
@@ -732,6 +811,23 @@ class TribunalMultimetrico:
             isi_soft = 1.0
 
         isi_final = max(0.0, min(1.0, isi_final))
+
+        # ── 5b. R3.2 Topological — ajuste aditivo post-cascada ────────────
+        # PARAPHRASE_RESCUE: sube ISI_FINAL a κD (equivalencia semántica)
+        # CONTRADICTION_VETO: baja ISI_FINAL a κR - 0.05 (inversión polar)
+        r32_adjustment_desc = None
+        if r32_fired and r32_details:
+            v = r32_details.get("verdict")
+            if v == "PARAPHRASE_RESCUE":
+                target = max(self.kappa_d, isi_final)
+                if target > isi_final:
+                    r32_adjustment_desc = f"PARAPHRASE_RESCUE: ISI {isi_final:.4f} → {target:.4f}"
+                    isi_final = target
+            elif v == "CONTRADICTION_VETO":
+                target = min(self.kappa_r - 0.05, isi_final)
+                if target < isi_final:
+                    r32_adjustment_desc = f"CONTRADICTION_VETO: ISI {isi_final:.4f} → {target:.4f}"
+                    isi_final = target
 
         # ── 6. Clasificar zona ─────────────────────────────────────────────
         zona = self._clasificar_zona(isi_final)
@@ -802,6 +898,14 @@ class TribunalMultimetrico:
                 descripcion=r3_desc,
                 peso=0.08,  # Peso fijo para el guard diferencial
             ),
+            EvidenciaModulo(
+                nombre="r3_2_topological",
+                valor=r32_val,
+                disparo=r32_fired,
+                umbral=0.56,  # KAPPA_D
+                descripcion=r32_desc,
+                peso=0.12,  # Peso fijo para el módulo topológico
+            ),
         ]
 
         modulos_disparados = [m for m in todas_evidencias if m.disparo]
@@ -824,11 +928,13 @@ class TribunalMultimetrico:
             f"  Arithmetic Penal : {arith_val:.6f}  {'⚠ DISPARO' if arith_fired else '✓ OK'}",
             f"  Reference Penal  : {ref_val:.6f}  {'⚠ DISPARO' if ref_fired else '✓ OK'}",
             f"  R3.1 Guard       : {r3_val:.6f}  {'⚠ DISPARO' if r3_fired else '✓ OK'}",
+            f"  R3.2 Topological : {r32_val:.6f}  {'⚠ DISPARO' if r32_fired else '✓ OK'}",
             sep,
             "ISI COMPUESTO (penalización multiplicativa en cascada)",
             f"  ISI_HARD = {isi_hard:.6f}  [min(lexical, STG, CRE)]",
             f"  ISI_SOFT = {isi_soft:.6f}  [factor de penalización multiplicativo]",
             f"  ISI_FINAL = {isi_final:.6f}  [ISI_HARD × Π(penalizaciones)]",
+            f"  R3.2 AJUSTE : {r32_adjustment_desc or 'ninguno'}",
             sep,
             f"  κD = {self.kappa_d}  |  κR = {self.kappa_r}",
             sep,
@@ -859,6 +965,7 @@ class TribunalMultimetrico:
             arithmetic_penalty=arith_val,
             reference_penalty=ref_val,
             r3_1_guard=r3_val,
+            r3_2_topological=r32_val,
             isi_hard=round(isi_hard, 6),
             isi_soft=round(isi_soft, 6),
             isi_final=round(isi_final, 6),
