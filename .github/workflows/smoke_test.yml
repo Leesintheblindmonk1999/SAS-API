@@ -1,6 +1,8 @@
 name: SAS API Smoke Test
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"  # every 6 hours, API is awake
   push:
     branches:
       - main
@@ -22,6 +24,10 @@ jobs:
       - name: Show target
         run: |
           echo "Testing SAS API at: $SAS_BASE_URL"
+      - name: Initial wait for Render cold start
+        run: |
+          echo "Render free tier may be asleep. Waiting 90s for cold start..."
+          sleep 90
       - name: Wait for API to wake up
         run: |
           set -e
