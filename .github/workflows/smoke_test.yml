@@ -3,13 +3,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 */6 * * *"  # every 6 hours, API is awake
-  push:
-    branches:
-      - main
-    paths:
-      - "app/**"
-      - ".github/workflows/**"
-      - "requirements.txt"
 jobs:
   smoke-test:
     name: Production API Health Check
