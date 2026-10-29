@@ -125,6 +125,7 @@ jobs:
           cat /tmp/interaction_stats.json | jq -e '.privacy.public_stats_are_aggregated == true'
 
       - name: Check /v2/audit (tribunal endpoint)
+        if: env.SAS_API_KEY != ''
         run: |
           set -e
           code=$(curl -sS -o /tmp/tribunal.json -w "%{http_code}" -X POST "$SAS_BASE_URL/v2/audit" -H "Content-Type: application/json" -H "X-API-Key: $SAS_API_KEY" -d '{"source":"The Eiffel Tower is in Paris, France.","response":"The Eiffel Tower is in Berlin, Germany."}' || true)
