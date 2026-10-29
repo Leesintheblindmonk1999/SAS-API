@@ -55,9 +55,9 @@ class Settings(BaseSettings):
     # Shared legacy key kept only for smoke tests / old examples.
     # This key must NOT be treated as a normal production key.
     legacy_bootstrap_api_key: str = "sas_test_key_2026"
-    legacy_requests_per_day: int = 5
+    legacy_requests_per_day: int = 200
     legacy_deprecation_message: str = (
-        "This shared legacy key is limited to 5 requests/day. "
+        "This shared legacy key is limited to 200 requests/day. "
         "Request a personal free API key at "
         "https://sas-api.onrender.com/public/request-key"
     )

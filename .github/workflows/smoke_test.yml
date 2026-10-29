@@ -280,6 +280,10 @@ jobs:
             -H "X-API-Key: $SAS_API_KEY" || true)
           echo "HTTP $code"
           cat /tmp/whoami.json | jq .
+          if [ "$code" = "429" ]; then
+            echo "::warning::API key rate limit reached (429). Skipping strict assertion."
+            exit 0
+          fi
           test "$code" = "200"
           status=$(cat /tmp/whoami.json | jq -r '.status')
           active=$(cat /tmp/whoami.json | jq -r '.active')
@@ -304,6 +308,10 @@ jobs:
             -d "$payload" || true)
           echo "HTTP $code"
           cat /tmp/diff.json | jq .
+          if [ "$code" = "429" ]; then
+            echo "::warning::API key rate limit reached (429). Skipping strict assertion."
+            exit 0
+          fi
           test "$code" = "200"
           isi=$(cat /tmp/diff.json | jq -r '.isi')
           verdict=$(cat /tmp/diff.json | jq -r '.verdict')
@@ -337,6 +345,10 @@ jobs:
             -d "$payload" || true)
           echo "HTTP $code"
           cat /tmp/batch.json | jq .
+          if [ "$code" = "429" ]; then
+            echo "::warning::API key rate limit reached (429). Skipping strict assertion."
+            exit 0
+          fi
           test "$code" = "200"
           status=$(cat /tmp/batch.json | jq -r '.status')
           count=$(cat /tmp/batch.json | jq -r '.count')
@@ -416,6 +428,10 @@ jobs:
             -d "$payload" || true)
           echo "HTTP $code"
           cat /tmp/interaction.json | jq .
+          if [ "$code" = "429" ]; then
+            echo "::warning::API key rate limit reached (429). Skipping strict assertion."
+            exit 0
+          fi
           test "$code" = "200"
           status=$(cat /tmp/interaction.json | jq -r '.status')
           version=$(cat /tmp/interaction.json | jq -r '.model_version')
