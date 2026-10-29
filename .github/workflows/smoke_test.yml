@@ -26,14 +26,19 @@ jobs:
         run: |
           set -e
           echo "Waking up API..."
-          for i in $(seq 1 18); do
+          for i in $(seq 1 24); do
             code=$(curl -sS -o /tmp/health.json -w "%{http_code}" "$SAS_BASE_URL/health" || true)
             echo "Attempt $i -> HTTP $code"
             if [ "$code" = "200" ]; then
-              cat /tmp/health.json
-              echo ""
-              echo "API is awake."
-              exit 0
+              # Verify it's JSON, not the Render "deploying" HTML page
+              if head -c 1 /tmp/health.json | grep -q "{"; then
+                cat /tmp/health.json
+                echo ""
+                echo "API is awake and serving JSON."
+                exit 0
+              else
+                echo "HTTP 200 but not JSON (Render deploying page?). Retrying..."
+              fi
             fi
             sleep 10
           done
@@ -84,7 +89,16 @@ jobs:
       - name: Check /robots.txt
         run: |
           set -e
-          code=$(curl -sS -o /tmp/robots.txt -w "%{http_code}" "$SAS_BASE_URL/robots.txt" || true)
+          for i in $(seq 1 6); do
+            code=$(curl -sS -o /tmp/robots.txt -w "%{http_code}" "$SAS_BASE_URL/robots.txt" || true)
+            echo "Attempt $i -> HTTP $code"
+            if [ "$code" = "200" ] && grep -q "User-agent" /tmp/robots.txt; then
+              echo "robots.txt is serving real content."
+              break
+            fi
+            echo "robots.txt not ready (deploying?). Retrying in 10s..."
+            sleep 10
+          done
           echo "HTTP $code"
           cat /tmp/robots.txt
           test "$code" = "200"
