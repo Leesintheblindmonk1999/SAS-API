@@ -1,8 +1,11 @@
 # SAS — Symbiotic Autoprotection System
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19702379.svg)](https://doi.org/10.5281/zenodo.19702379)
-[![Tribunal v1.1.0](https://img.shields.io/badge/Tribunal-v1.1.0-purple)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![Tribunal v1.2.0](https://img.shields.io/badge/Tribunal-v1.2.0-purple)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.1 Guard](https://img.shields.io/badge/R3.1_Guard-F1_0.833-orange)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![R3.2 Topological](https://img.shields.io/badge/R3.2_Topological-7%2F7_tests-brightgreen)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![kC Threshold](https://img.shields.io/badge/kC_Threshold-abstentions_58%E2%86%921-blue)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![Hash Chain](https://img.shields.io/badge/Hash_Chain-Bitcoin_anchored-blueviolet)](hash_chain/README.md)
 [![R0 Audit](https://img.shields.io/badge/R0%20Audit-Zenodo%2020647532-blueviolet)](https://zenodo.org/records/20647532)
 [![R1-D](https://img.shields.io/badge/R1--D-Zenodo%2021282332-blueviolet)](https://zenodo.org/records/21282332)
 [![R2.1](https://img.shields.io/badge/R2.1-Zenodo%2021365707-blueviolet)](https://doi.org/10.5281/zenodo.21365707)
@@ -13,14 +16,14 @@
 [![API Docs](https://img.shields.io/badge/API-FastAPI-009688)](https://sas-api.onrender.com/docs)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](requirements.txt)
 [![License](https://img.shields.io/badge/license-GPL--3.0%20%2B%20Durante%20Invariance-blue)](LICENSE.md)
-[![Status](https://img.shields.io/badge/status-production%20v1.1.0-brightgreen)](#scope-and-limitations)
+[![Status](https://img.shields.io/badge/status-production%20v1.2.0-brightgreen)](#scope-and-limitations)
 [![Tribunal Benchmark](https://img.shields.io/badge/Tribunal-99.17%25_accuracy-brightgreen)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![Precision](https://img.shields.io/badge/Precision-100%25-success)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![OTS Proof](https://img.shields.io/badge/OpenTimestamps-proof-blueviolet)](docs/benchmark_complete_20260429_172647.json.ots)
 
-**SAS — Symbiotic Autoprotection System** is an open-source structural coherence auditing system. It classifies (source, response) text pairs into **3 structural zones** using the **SAS Multimetric Tribunal v1.1.0**: 7 detection modules with cascading multiplicative penalty, plus an optional **R3.1 Differential Guard**.
+**SAS — Symbiotic Autoprotection System** is an open-source structural coherence auditing system. It classifies (source, response) text pairs into **3 structural zones** using the **SAS Multimetric Tribunal v1.2.0**: 8 detection modules with cascading multiplicative penalty, plus optional **R3.1 Differential Guard** and **R3.2 Topological Invariance**.
 
-> **Production status:** v1.1.0 — The multimetric tribunal is the current core engine. The legacy pipeline (TDA + NIG + E9–E12) remains available at `/v1/diff` for backward compatibility and reproducibility of published benchmarks. New integrations should use `/v2/audit`.
+> **Production status:** v1.2.0 — The multimetric tribunal is the current core engine. The legacy pipeline (TDA + NIG + E9–E12) remains available at `/v1/diff` for backward compatibility and reproducibility of published benchmarks. New integrations should use `/v2/audit`.
 
 ---
 
@@ -42,12 +45,16 @@ Expected response:
 ```json
 {
   "status": "ok",
-  "isi": 0.041,
+  "isi": 0.25,
   "kappa_d": 0.56,
   "kappa_r": 0.15,
   "verdict": "MANIFOLD_RUPTURE",
-  "zone": "F-S",
-  "fired_modules": ["source_target_guard", "negation_penalty"],
+  "zona": "RUPTURA_RECUPERABLE",
+  "riesgo": "HIGH",
+  "fired_modules": ["SourceTargetGuard: year mismatch: 1889 -> 1950..."],
+  "topological_score": 0.833333,
+  "lexical_overlap": 0.421053,
+  "audit_hash": "05f7b144072678d9...",
   "demo": true
 }
 ```
@@ -61,9 +68,9 @@ sas demo-audit "The Eiffel Tower is in Paris, France." "The Eiffel Tower is in B
 
 ---
 
-## SAS Multimetric Tribunal v1.1.0
+## SAS Multimetric Tribunal v1.2.0
 
-The **SAS Multimetric Tribunal** is the core classification engine. It evaluates (source, response) pairs through **7 detection modules** with cascading multiplicative penalty, producing an **Invariant Similarity Index (ISI)** that determines the structural zone.
+The **SAS Multimetric Tribunal** is the core classification engine. It evaluates (source, response) pairs through **8 detection modules** with cascading multiplicative penalty, producing an **Invariant Similarity Index (ISI)** that determines the structural zone.
 
 Full repository: [https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 
@@ -71,10 +78,10 @@ Full repository: [https://github.com/Leesintheblindmonk1999/sas-multimetric-trib
 
 ```text
 ISI_HARD  = min(lexical_baseline, source_target_guard, cre_isi)
-ISI_FINAL = ISI_HARD × Π(penalties from fired modules)
+ISI_FINAL = ISI_HARD × Π(penalties from fired modules) + R3.2 additive adjustment
 ```
 
-### 7 Detection Modules
+### 8 Detection Modules
 
 | # | Module | Function | Weight |
 |---|--------|----------|--------|
@@ -85,6 +92,7 @@ ISI_FINAL = ISI_HARD × Π(penalties from fired modules)
 | 5 | `cre_isi` | Ricci semantic curvature | 0.12 |
 | 6 | `arithmetic_penalty` | Arithmetic errors | 0.04 |
 | 7 | `reference_penalty` | Reference fabrication | 0.04 |
+| 8 | `r3_2_topological` | Topological invariance under paraphrase (optional) | 0.12 |
 
 ### R3.1 Differential Guard (Optional)
 
@@ -94,6 +102,36 @@ ISI_FINAL = ISI_HARD × Π(penalties from fired modules)
 | **Compression Ratio** | Abstains when response >50% shorter than source |
 | **Short-Response Heuristics** | Polarity inversion, isolated entity, stopword grounding |
 
+### κC Compression Threshold (v1.2.0)
+
+Replaces the binary compression-ratio abstention with a continuous weight:
+
+```text
+κC_weight = max(0.0, 1.0 − CR / 0.5)
+```
+
+**Result on N1 (1,800 A→B pairs):** abstentions 58 → 1 (−98%). 57 pairs with CR > 0.5 recovered and correctly evaluated.
+
+### R3.2 Topological Invariance (Optional, v1.2.0)
+
+Detects semantic equivalence under paraphrase when lexical overlap is near zero. Zero external dependencies (no nltk, no WordNet, no LLM).
+
+| Component | Function |
+|-----------|----------|
+| **Canonical clusters** | ~800 entries, inline O(1) synonym resolution |
+| **Deterministic lemmatizer** | Rule-based + irregular verb table |
+| **Triple extractor** | (Agent, Action, Patient, Polarity) |
+| **Passive voice inversion** | Regex detection + Agent↔Patient swap |
+| **Strict anchoring** | ≥2 of 3 components must match ≥0.50 |
+| **Copular symmetry** | A=B tested both directions for $BE verbs |
+
+**Conditional gate:**
+- `PARAPHRASE_RESCUE`: lex < 0.30 AND score ≥ κD → ISI raised to κD
+- `CONTRADICTION_VETO`: polarity inversion AND score ≥ κD → ISI lowered to κR−0.05
+- `INACTIVE`: otherwise → no adjustment
+
+**7-test suite: ALL PASS** (paraphrase, passive voice, S-V-O hallucination control, animal control, polarity inversion, double negation, copular symmetry). Module hash: `85236b0c...`
+
 ### Structural Zones
 
 | Zone | Code | ISI Range | Risk | Action |
@@ -102,7 +140,7 @@ ISI_FINAL = ISI_HARD × Π(penalties from fired modules)
 | **RECOVERABLE RUPTURE** | **B** | κR ≤ ISI < κD (0.56) | HIGH | Review / Flag |
 | **COHERENT** | **A** | ISI ≥ κD (0.56) | LOW | Pass |
 
-### Benchmark (v6)
+### Benchmark (v9)
 
 | Metric | Core Tribunal (1,800 pairs) | + R3.1 Guard (N1 audit) | FinQA Cross-Query |
 |--------|-----------------------------|------------------------|-------------------|
@@ -110,10 +148,12 @@ ISI_FINAL = ISI_HARD × Π(penalties from fired modules)
 | **Precision** | **100.00%** (0 false positives) | — | — |
 | **Accuracy** | **99.00%** | — | — |
 | **ISI Separation** | **0.8323** | — | — |
+| **R3.1 Abstentions** | — | **58 → 1 (κC, −98%)** | — |
+| **R3.2 Tests** | — | **7/7 PASS** | — |
 | **Corpora** | halueval_dialogue, halueval_qa, truthfulqa | N1 (1,800 × 4 conditions) | financiero_finqa (1,657 pairs) |
 
-**Paper v6 (Qeios):** DOI 10.32388/T420IV — Round 4, Clarity 5/5  
-**Supplement:** SAS_v6_Supplements.zip (26 files, SHA-256 verified)
+**Paper v9 (Qeios):** DOI 10.32388/T420IV — κC + R3.2 + hash chain documented  
+**Supplement:** SAS_v9_Supplements.zip (SHA-256 verified)
 
 ---
 
@@ -123,7 +163,7 @@ ISI_FINAL = ISI_HARD × Π(penalties from fired modules)
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `POST` | `/v2/audit` | API Key | Full multimetric tribunal analysis (7 modules + optional R3.1 Guard) |
+| `POST` | `/v2/audit` | API Key | Full multimetric tribunal analysis (8 modules + optional R3.1 Guard + R3.2 Topological) |
 
 ### Legacy (v1 — Backward Compatible)
 
@@ -188,7 +228,7 @@ Hosted Free plan: **50 requests/day**, no credit card.
 
 | Client | Package | Runtime | Status |
 |---|---|---|---|
-| **sas-multimetric-tribunal** (core engine) | [GitHub](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal) | Python 3.10+ | **v1.1.0** — 7 modules + R3.1 Guard |
+| **sas-multimetric-tribunal** (core engine) | [GitHub](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal) | Python 3.10+ | **v1.2.0** — 8 modules + R3.1 + R3.2 |
 | Python CLI / client | [`sas-client`](https://pypi.org/project/sas-client/) | Python 3.10+ | Published on PyPI |
 | Node.js / TypeScript SDK | [`sas-audit-client`](https://www.npmjs.com/package/sas-audit-client) | Node.js 18+ | Published on npm |
 
@@ -268,6 +308,31 @@ Source text A + Response text B
 ```
 
 > **Note:** New integrations should use `/v2/audit` (tribunal). The v1 pipeline is maintained for reproducibility of published benchmarks but is superseded by the multimetric tribunal.
+
+---
+
+## Forensic Hash Chain (v1.2.0)
+
+The entire SAS-API system is protected by a **6-level nested SHA-256 hash chain**, anchored to Bitcoin via OpenTimestamps.
+
+| Level | File | Description |
+|-------|------|-------------|
+| L1 | `hashes_individuales.txt` | SHA-256 of every `.py` file (103 files) |
+| L2 | `core_modules_concatenated` | SHA-256 of the 8 tribunal modules concatenated |
+| L3 | `app/main.py` | SHA-256 of the API entry point |
+| L4 | `requirements.txt` | SHA-256 of dependencies |
+| L5 | `docker-compose.yml` | SHA-256 of deployment config |
+| L6 | `chain.txt` (self-hash) | SHA-256 of the chain itself |
+
+**Verification:**
+
+```bash
+python hash_chain/build_hash_chain.py
+ots verify hash_chain/hashes_individuales.txt.ots
+ots verify hash_chain/chain.txt.ots
+```
+
+Anyone can verify that no file has been tampered with. The proof is in the Bitcoin blockchain.
 
 ---
 
