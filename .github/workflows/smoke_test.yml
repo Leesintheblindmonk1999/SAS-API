@@ -12,7 +12,7 @@ jobs:
   smoke-test:
     name: Production API Health Check
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     env:
       SAS_BASE_URL: https://sas-api.onrender.com
       SAS_API_KEY: ${{ secrets.SAS_SMOKE_API_KEY }}
@@ -26,7 +26,7 @@ jobs:
         run: |
           set -e
           echo "Waking up API..."
-          for i in $(seq 1 24); do
+          for i in $(seq 1 30); do
             code=$(curl -sS -o /tmp/health.json -w "%{http_code}" "$SAS_BASE_URL/health" || true)
             echo "Attempt $i -> HTTP $code"
             if [ "$code" = "200" ]; then
@@ -39,6 +39,10 @@ jobs:
               else
                 echo "HTTP 200 but not JSON (Render deploying page?). Retrying..."
               fi
+            elif [ "$code" = "502" ] || [ "$code" = "503" ]; then
+              echo "Render is deploying/restarting (HTTP $code). Waiting..."
+            else
+              echo "Unexpected HTTP $code. Retrying..."
             fi
             sleep 10
           done
@@ -89,14 +93,14 @@ jobs:
       - name: Check /robots.txt
         run: |
           set -e
-          for i in $(seq 1 6); do
+          for i in $(seq 1 12); do
             code=$(curl -sS -o /tmp/robots.txt -w "%{http_code}" "$SAS_BASE_URL/robots.txt" || true)
             echo "Attempt $i -> HTTP $code"
             if [ "$code" = "200" ] && grep -q "User-agent" /tmp/robots.txt; then
               echo "robots.txt is serving real content."
               break
             fi
-            echo "robots.txt not ready (deploying?). Retrying in 10s..."
+            echo "robots.txt not ready (deploying or 502). Retrying in 10s..."
             sleep 10
           done
           echo "HTTP $code"
