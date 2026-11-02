@@ -142,6 +142,74 @@ except ImportError:
         logger = logging.getLogger(__name__)
         logger.warning("R3.2 Topological Invariance no disponible — tribunal opera con 7 módulos")
 
+# ════════════════════════════════════════════════════════════════════════════
+# R3.3 Semantic Drift Trajectory (import opcional)
+# ════════════════════════════════════════════════════════════════════════════
+
+R3_3_DRIFT_ENABLED: bool = True
+_R3_3_DRIFT_AVAILABLE: bool = False
+try:
+    from core.r3_3_drift import compute_drift_trajectory
+    _R3_3_DRIFT_AVAILABLE = True
+except ImportError:
+    try:
+        from r3_3_drift import compute_drift_trajectory
+        _R3_3_DRIFT_AVAILABLE = True
+    except ImportError:
+        compute_drift_trajectory = None
+        logger.warning("R3.3 Semantic Drift no disponible")
+
+# ════════════════════════════════════════════════════════════════════════════
+# R3.4 Entropy Differential (import opcional)
+# ════════════════════════════════════════════════════════════════════════════
+
+R3_4_ENTROPY_ENABLED: bool = True
+_R3_4_ENTROPY_AVAILABLE: bool = False
+try:
+    from core.r3_4_entropy import compute_entropy_differential
+    _R3_4_ENTROPY_AVAILABLE = True
+except ImportError:
+    try:
+        from r3_4_entropy import compute_entropy_differential
+        _R3_4_ENTROPY_AVAILABLE = True
+    except ImportError:
+        compute_entropy_differential = None
+        logger.warning("R3.4 Entropy Differential no disponible")
+
+# ════════════════════════════════════════════════════════════════════════════
+# R3.5 Kolmogorov Complexity Ratio (import opcional)
+# ════════════════════════════════════════════════════════════════════════════
+
+R3_5_KOLMOGOROV_ENABLED: bool = True
+_R3_5_KOLMOGOROV_AVAILABLE: bool = False
+try:
+    from core.r3_5_kolmogorov import compute_kolmogorov_ratio
+    _R3_5_KOLMOGOROV_AVAILABLE = True
+except ImportError:
+    try:
+        from r3_5_kolmogorov import compute_kolmogorov_ratio
+        _R3_5_KOLMOGOROV_AVAILABLE = True
+    except ImportError:
+        compute_kolmogorov_ratio = None
+        logger.warning("R3.5 Kolmogorov Complexity no disponible")
+
+# ════════════════════════════════════════════════════════════════════════════
+# R3.6 Surprisal Analysis (import opcional)
+# ════════════════════════════════════════════════════════════════════════════
+
+R3_6_SURPRISAL_ENABLED: bool = True
+_R3_6_SURPRISAL_AVAILABLE: bool = False
+try:
+    from core.r3_6_surprisal import compute_surprisal_analysis
+    _R3_6_SURPRISAL_AVAILABLE = True
+except ImportError:
+    try:
+        from r3_6_surprisal import compute_surprisal_analysis
+        _R3_6_SURPRISAL_AVAILABLE = True
+    except ImportError:
+        compute_surprisal_analysis = None
+        logger.warning("R3.6 Surprisal Analysis no disponible")
+
 logger = logging.getLogger(__name__)
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -248,6 +316,10 @@ class VeredictoTribunal:
     reference_penalty: float
     r3_1_guard: float
     r3_2_topological: float
+    r3_3_drift: float
+    r3_4_entropy: float
+    r3_5_kolmogorov: float
+    r3_6_surprisal: float
 
     # Métricas compuestas
     isi_hard: float          # Mínimo de métricas core
@@ -286,6 +358,10 @@ class VeredictoTribunal:
             "reference_penalty": round(self.reference_penalty, 6),
             "r3_1_guard": round(self.r3_1_guard, 6),
             "r3_2_topological": round(self.r3_2_topological, 6),
+            "r3_3_drift": round(self.r3_3_drift, 6),
+            "r3_4_entropy": round(self.r3_4_entropy, 6),
+            "r3_5_kolmogorov": round(self.r3_5_kolmogorov, 6),
+            "r3_6_surprisal": round(self.r3_6_surprisal, 6),
             "isi_hard": round(self.isi_hard, 6),
             "isi_soft": round(self.isi_soft, 6),
             "isi_final": round(self.isi_final, 6),
@@ -656,6 +732,127 @@ class TribunalMultimetrico:
             logger.debug(f"R3.2 Topological error: {e}")
             return 1.0, False, f"R3.2 Topological: error ({e})", None
 
+    def _calcular_r3_3_drift(
+        self, text_a: str, text_b: str
+    ) -> Tuple[float, bool, str, Optional[Dict]]:
+        """Evalúa el R3.3 Semantic Drift Trajectory.
+
+        Módulo opcional. Si no está disponible, devuelve 1.0 (sin
+        penalización) y disparo=False.
+
+        Returns:
+            Tuple[valor, disparo, descripción, detalles_opcionales]
+        """
+        if not R3_3_DRIFT_ENABLED or not _R3_3_DRIFT_AVAILABLE:
+            return 1.0, False, "R3.3 Drift: no disponible", None
+
+        try:
+            result = compute_drift_trajectory(text_a, text_b)
+            if result["is_anomalous"]:
+                return result["penalty"], True, (
+                    f"R3.3 Drift: {result['drift_type']} "
+                    f"(break={result['break_point']}, "
+                    f"min_isi={result['min_isi']:.4f})"
+                ), result
+            return 1.0, False, (
+                f"R3.3 Drift: {result['drift_type']} "
+                f"(mean_isi={result['mean_isi']:.4f})"
+            ), result
+        except Exception as e:
+            logger.debug(f"R3.3 Drift error: {e}")
+            return 1.0, False, f"R3.3 Drift: error ({e})", None
+
+    def _calcular_r3_4_entropy(
+        self, text_a: str, text_b: str
+    ) -> Tuple[float, bool, str, Optional[Dict]]:
+        """Evalúa el R3.4 Entropy Differential.
+
+        Módulo opcional. Si no está disponible, devuelve 1.0 (sin
+        penalización) y disparo=False.
+
+        Returns:
+            Tuple[valor, disparo, descripción, detalles_opcionales]
+        """
+        if not R3_4_ENTROPY_ENABLED or not _R3_4_ENTROPY_AVAILABLE:
+            return 1.0, False, "R3.4 Entropy: no disponible", None
+
+        try:
+            result = compute_entropy_differential(text_a, text_b)
+            if result["is_anomalous"]:
+                return result["penalty"], True, (
+                    f"R3.4 Entropy: {result['direction']} "
+                    f"(ΔH={result['delta_h']:.4f}, "
+                    f"H(src)={result['entropy_source']:.2f}, "
+                    f"H(rsp)={result['entropy_response']:.2f})"
+                ), result
+            return 1.0, False, (
+                f"R3.4 Entropy: normal "
+                f"(ΔH={result['delta_h']:.4f})"
+            ), result
+        except Exception as e:
+            logger.debug(f"R3.4 Entropy error: {e}")
+            return 1.0, False, f"R3.4 Entropy: error ({e})", None
+
+    def _calcular_r3_5_kolmogorov(
+        self, text_a: str, text_b: str
+    ) -> Tuple[float, bool, str, Optional[Dict]]:
+        """Evalúa el R3.5 Kolmogorov Complexity Ratio.
+
+        Módulo opcional. Si no está disponible, devuelve 1.0 (sin
+        penalización) y disparo=False.
+
+        Returns:
+            Tuple[valor, disparo, descripción, detalles_opcionales]
+        """
+        if not R3_5_KOLMOGOROV_ENABLED or not _R3_5_KOLMOGOROV_AVAILABLE:
+            return 1.0, False, "R3.5 Kolmogorov: no disponible", None
+
+        try:
+            result = compute_kolmogorov_ratio(text_a, text_b)
+            if result["is_anomalous"]:
+                return result["penalty"], True, (
+                    f"R3.5 Kolmogorov: {result['direction']} "
+                    f"(ratio={result['ratio']:.4f}, "
+                    f"C(src)={result['compressed_source']}, "
+                    f"C(rsp)={result['compressed_response']})"
+                ), result
+            return 1.0, False, (
+                f"R3.5 Kolmogorov: normal "
+                f"(ratio={result['ratio']:.4f})"
+            ), result
+        except Exception as e:
+            logger.debug(f"R3.5 Kolmogorov error: {e}")
+            return 1.0, False, f"R3.5 Kolmogorov: error ({e})", None
+
+    def _calcular_r3_6_surprisal(
+        self, text_a: str, text_b: str
+    ) -> Tuple[float, bool, str, Optional[Dict]]:
+        """Evalúa el R3.6 Surprisal Analysis.
+
+        Módulo opcional. Si no está disponible, devuelve 1.0 (sin
+        penalización) y disparo=False.
+
+        Returns:
+            Tuple[valor, disparo, descripción, detalles_opcionales]
+        """
+        if not R3_6_SURPRISAL_ENABLED or not _R3_6_SURPRISAL_AVAILABLE:
+            return 1.0, False, "R3.6 Surprisal: no disponible", None
+
+        try:
+            result = compute_surprisal_analysis(text_a, text_b)
+            if result["is_anomalous"]:
+                return result["penalty"], True, (
+                    f"R3.6 Surprisal: {result['anomalous_tokens']}/{result['total_tokens']} "
+                    f"anomalous (mean={result['mean_surprisal']:.2f} bits)"
+                ), result
+            return 1.0, False, (
+                f"R3.6 Surprisal: normal "
+                f"(mean={result['mean_surprisal']:.2f} bits)"
+            ), result
+        except Exception as e:
+            logger.debug(f"R3.6 Surprisal error: {e}")
+            return 1.0, False, f"R3.6 Surprisal: error ({e})", None
+
     def _calcular_r3_1_guard(
         self, text_a: str, text_b: str
     ) -> Tuple[float, bool, str, Optional[Dict]]:
@@ -745,6 +942,10 @@ class TribunalMultimetrico:
         ref_val, ref_fired, ref_desc = self._calcular_reference_penalty(source, response)
         r3_val, r3_fired, r3_desc, r3_details = self._calcular_r3_1_guard(source, response)
         r32_val, r32_fired, r32_desc, r32_details = self._calcular_r3_2_topological(source, response)
+        r33_val, r33_fired, r33_desc, r33_details = self._calcular_r3_3_drift(source, response)
+        r34_val, r34_fired, r34_desc, r34_details = self._calcular_r3_4_entropy(source, response)
+        r35_val, r35_fired, r35_desc, r35_details = self._calcular_r3_5_kolmogorov(source, response)
+        r36_val, r36_fired, r36_desc, r36_details = self._calcular_r3_6_surprisal(source, response)
 
         # ── 2. Construir mapa de métricas ──────────────────────────────────
         metricas_raw = {
@@ -798,6 +999,14 @@ class TribunalMultimetrico:
             penalizaciones.append(ref_val)
         if r3_fired:
             penalizaciones.append(r3_val)
+        if r33_fired:
+            penalizaciones.append(r33_val)
+        if r34_fired:
+            penalizaciones.append(r34_val)
+        if r35_fired:
+            penalizaciones.append(r35_val)
+        if r36_fired:
+            penalizaciones.append(r36_val)
 
         if penalizaciones:
             # Producto de penalizaciones (cada una < 1.0 si disparó)
@@ -906,6 +1115,38 @@ class TribunalMultimetrico:
                 descripcion=r32_desc,
                 peso=0.12,  # Peso fijo para el módulo topológico
             ),
+            EvidenciaModulo(
+                nombre="r3_3_drift",
+                valor=r33_val,
+                disparo=r33_fired,
+                umbral=0.50,  # DRIFT_PENALTY_BASE
+                descripcion=r33_desc,
+                peso=0.06,
+            ),
+            EvidenciaModulo(
+                nombre="r3_4_entropy",
+                valor=r34_val,
+                disparo=r34_fired,
+                umbral=0.60,  # ENTROPY_PENALTY_BASE
+                descripcion=r34_desc,
+                peso=0.06,
+            ),
+            EvidenciaModulo(
+                nombre="r3_5_kolmogorov",
+                valor=r35_val,
+                disparo=r35_fired,
+                umbral=0.65,  # KOLMOGOROV_PENALTY_BASE
+                descripcion=r35_desc,
+                peso=0.04,
+            ),
+            EvidenciaModulo(
+                nombre="r3_6_surprisal",
+                valor=r36_val,
+                disparo=r36_fired,
+                umbral=0.55,  # SURPRISAL_PENALTY_BASE
+                descripcion=r36_desc,
+                peso=0.04,
+            ),
         ]
 
         modulos_disparados = [m for m in todas_evidencias if m.disparo]
@@ -929,6 +1170,10 @@ class TribunalMultimetrico:
             f"  Reference Penal  : {ref_val:.6f}  {'⚠ DISPARO' if ref_fired else '✓ OK'}",
             f"  R3.1 Guard       : {r3_val:.6f}  {'⚠ DISPARO' if r3_fired else '✓ OK'}",
             f"  R3.2 Topological : {r32_val:.6f}  {'⚠ DISPARO' if r32_fired else '✓ OK'}",
+            f"  R3.3 Drift       : {r33_val:.6f}  {'⚠ DISPARO' if r33_fired else '✓ OK'}",
+            f"  R3.4 Entropy     : {r34_val:.6f}  {'⚠ DISPARO' if r34_fired else '✓ OK'}",
+            f"  R3.5 Kolmogorov  : {r35_val:.6f}  {'⚠ DISPARO' if r35_fired else '✓ OK'}",
+            f"  R3.6 Surprisal   : {r36_val:.6f}  {'⚠ DISPARO' if r36_fired else '✓ OK'}",
             sep,
             "ISI COMPUESTO (penalización multiplicativa en cascada)",
             f"  ISI_HARD = {isi_hard:.6f}  [min(lexical, STG, CRE)]",
@@ -966,6 +1211,10 @@ class TribunalMultimetrico:
             reference_penalty=ref_val,
             r3_1_guard=r3_val,
             r3_2_topological=r32_val,
+            r3_3_drift=r33_val,
+            r3_4_entropy=r34_val,
+            r3_5_kolmogorov=r35_val,
+            r3_6_surprisal=r36_val,
             isi_hard=round(isi_hard, 6),
             isi_soft=round(isi_soft, 6),
             isi_final=round(isi_final, 6),
