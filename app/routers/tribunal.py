@@ -42,7 +42,7 @@ def _veredicto_to_response(
     """Convert VeredictoTribunal to TribunalResponse model."""
     elapsed_ms = (time.time_ns() - start_ns) / 1_000_000
 
-    # Build module list
+    # Build module list (7 core + 6 R3 modules = 13)
     modulos = [
         ModuloTribunal(
             nombre="lexical_baseline_score",
@@ -93,13 +93,60 @@ def _veredicto_to_response(
             disparado=v.reference_penalty < 1.0,
             descripcion="Reference fabrication",
         ),
+        ModuloTribunal(
+            nombre="r3_1_guard",
+            peso=0.08,
+            valor=v.r3_1_guard,
+            disparado=v.r3_1_guard < 1.0,
+            descripcion="Differential structural guard",
+        ),
+        ModuloTribunal(
+            nombre="r3_2_topological",
+            peso=0.12,
+            valor=v.r3_2_topological,
+            disparado=v.r3_2_topological < 1.0,
+            descripcion="Topological invariance (paraphrase)",
+        ),
+        ModuloTribunal(
+            nombre="r3_3_drift",
+            peso=0.06,
+            valor=v.r3_3_drift,
+            disparado=v.r3_3_drift < 1.0,
+            descripcion="Semantic drift trajectory",
+        ),
+        ModuloTribunal(
+            nombre="r3_4_entropy",
+            peso=0.06,
+            valor=v.r3_4_entropy,
+            disparado=v.r3_4_entropy < 1.0,
+            descripcion="Entropy differential",
+        ),
+        ModuloTribunal(
+            nombre="r3_5_kolmogorov",
+            peso=0.04,
+            valor=v.r3_5_kolmogorov,
+            disparado=v.r3_5_kolmogorov < 1.0,
+            descripcion="Kolmogorov complexity ratio",
+        ),
+        ModuloTribunal(
+            nombre="r3_6_surprisal",
+            peso=0.04,
+            valor=v.r3_6_surprisal,
+            disparado=v.r3_6_surprisal < 1.0,
+            descripcion="Surprisal analysis (token-level)",
+        ),
     ]
 
     # Fired modules list
     fired = [m.nombre for m in modulos if m.disparado]
 
-    # R3.1 guard
+    # R3 fired flags
     r3_1_fired = v.r3_1_guard < 1.0 if hasattr(v, "r3_1_guard") else False
+    r3_2_fired = v.r3_2_topological < 1.0 if hasattr(v, "r3_2_topological") else False
+    r3_3_fired = v.r3_3_drift < 1.0 if hasattr(v, "r3_3_drift") else False
+    r3_4_fired = v.r3_4_entropy < 1.0 if hasattr(v, "r3_4_entropy") else False
+    r3_5_fired = v.r3_5_kolmogorov < 1.0 if hasattr(v, "r3_5_kolmogorov") else False
+    r3_6_fired = v.r3_6_surprisal < 1.0 if hasattr(v, "r3_6_surprisal") else False
 
     return TribunalResponse(
         hash_source=v.hash_source,
@@ -113,6 +160,11 @@ def _veredicto_to_response(
         arithmetic_penalty=v.arithmetic_penalty,
         reference_penalty=v.reference_penalty,
         r3_1_guard=v.r3_1_guard if hasattr(v, "r3_1_guard") else None,
+        r3_2_topological=v.r3_2_topological if hasattr(v, "r3_2_topological") else None,
+        r3_3_drift=v.r3_3_drift if hasattr(v, "r3_3_drift") else None,
+        r3_4_entropy=v.r3_4_entropy if hasattr(v, "r3_4_entropy") else None,
+        r3_5_kolmogorov=v.r3_5_kolmogorov if hasattr(v, "r3_5_kolmogorov") else None,
+        r3_6_surprisal=v.r3_6_surprisal if hasattr(v, "r3_6_surprisal") else None,
         isi_hard=v.isi_hard,
         isi_soft=v.isi_soft,
         isi_final=v.isi_final,
@@ -124,6 +176,11 @@ def _veredicto_to_response(
         modulos_disparados=fired,
         modulos=modulos,
         r3_1_fired=r3_1_fired,
+        r3_2_fired=r3_2_fired,
+        r3_3_fired=r3_3_fired,
+        r3_4_fired=r3_4_fired,
+        r3_5_fired=r3_5_fired,
+        r3_6_fired=r3_6_fired,
         latency_ms=round(elapsed_ms, 2),
     )
 

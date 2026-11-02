@@ -59,11 +59,15 @@ l1 = sha256_file(indiv_path)
 lines.append(f"{l1}  hashes_individuales.txt")
 print(f"L1 (all {len(py_files)} .py files): {l1}")
 
-# ── Level 2: core modules concatenated ───────────────────────────────
+# ── Level 2: core modules concatenated (12 modules) ───────────────────
 core_modules = [
     "core/tribunal_multimetrico.py",
     "core/r3_1_differential.py",
     "core/r3_2_topological.py",
+    "core/r3_3_drift.py",
+    "core/r3_4_entropy.py",
+    "core/r3_5_kolmogorov.py",
+    "core/r3_6_surprisal.py",
     "core/negation_probe.py",
     "core/flow_coherence.py",
     "core/ricci_enhanced_cre.py",
@@ -83,7 +87,7 @@ for mod in core_modules:
 
 l2 = sha256_bytes(core_concat)
 lines.append(f"{l2}  core_modules_concatenated")
-print(f"L2 (8 core modules): {l2}")
+print(f"L2 ({len(core_modules)} core modules): {l2}")
 
 # ── Level 3: app/main.py ────────────────────────────────────────────
 main_py = os.path.join(BASE, "app", "main.py")

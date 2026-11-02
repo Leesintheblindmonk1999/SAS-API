@@ -1,7 +1,9 @@
 """
-app/models/tribunal.py — SAS Multimetric Tribunal v1.1.0
+app/models/tribunal.py — SAS Multimetric Tribunal v1.3.0
 ═══════════════════════════════════════════════════════════════════════════════
 Request/Response models for /v2/audit endpoint.
+
+12 modules: 7 core + R3.1 + R3.2 + R3.3 + R3.4 + R3.5 + R3.6
 
 Registry: TAD EX-2026-18792778
 Author: Gonzalo Emir Durante — Project Manifold 0.56
@@ -38,7 +40,7 @@ class TribunalResponse(BaseModel):
     hash_response: str
     request_id: str
 
-    # Core metrics
+    # Core metrics (7 core + 6 R3 modules = 13 fields)
     lexical_baseline_score: float
     source_target_guard: float
     flow_penalty: float
@@ -47,6 +49,11 @@ class TribunalResponse(BaseModel):
     arithmetic_penalty: float
     reference_penalty: float
     r3_1_guard: Optional[float] = None
+    r3_2_topological: Optional[float] = None
+    r3_3_drift: Optional[float] = None
+    r3_4_entropy: Optional[float] = None
+    r3_5_kolmogorov: Optional[float] = None
+    r3_6_surprisal: Optional[float] = None
 
     # Composite metrics
     isi_hard: float
@@ -66,10 +73,20 @@ class TribunalResponse(BaseModel):
     modulos_disparados: List[str]
     modulos: List[ModuloTribunal]
 
-    # R3.1 details
+    # R3 details
     r3_1_fired: bool = False
     r3_1_descripcion: Optional[str] = None
     r3_1_detalles: Optional[Dict[str, Any]] = None
+    r3_2_fired: bool = False
+    r3_2_descripcion: Optional[str] = None
+    r3_3_fired: bool = False
+    r3_3_descripcion: Optional[str] = None
+    r3_4_fired: bool = False
+    r3_4_descripcion: Optional[str] = None
+    r3_5_fired: bool = False
+    r3_5_descripcion: Optional[str] = None
+    r3_6_fired: bool = False
+    r3_6_descripcion: Optional[str] = None
 
     # Metadata
     author: str = "Gonzalo Emir Durante"
