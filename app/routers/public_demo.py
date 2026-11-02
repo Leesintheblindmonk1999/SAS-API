@@ -322,6 +322,10 @@ class DemoResponse(BaseModel):
     topological_score: float = 0.0
     lexical_overlap: float = 0.0
     audit_hash: str = ""
+    r3_3_drift: float = 1.0
+    r3_4_entropy: float = 1.0
+    r3_5_kolmogorov: float = 1.0
+    r3_6_surprisal: float = 1.0
     demo: bool = True
 
 
@@ -384,8 +388,8 @@ async def public_demo_audit_help() -> DemoHelpResponse:
         expected_signal={
             "kappa_d": float(getattr(settings, "kappa_d", 0.56)),
             "note": (
-                "The public demo returns a simplified response. "
-                "Use /v1/diff with an API key for the full forensic response."
+                "The public demo uses the SAS Multimetric Tribunal (13 modules). "
+                "Use /v2/audit with an API key for the full response."
             ),
         },
         next_steps=[
@@ -409,8 +413,7 @@ async def public_demo_audit_help() -> DemoHelpResponse:
     tags=["Public"],
     summary="Public SAS demo audit - no API key required",
     description=(
-        "Public demo of the SAS forensic engine. Uses the same pipeline as /v1/diff: "
-        "TDA H0+H1 + NIG + E9-E12 with kappa_D=0.56. "
+        "Public demo of the SAS Multimetric Tribunal (13 modules). "
         "Source = reference text. Response = text to audit. "
         "No API key required. Full text is not stored. "
         f"Max {PUBLIC_DEMO_MAX_CHARS} chars per field. "
@@ -457,17 +460,10 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
     t0 = time.perf_counter()
 
     try:
-        from app.services.detector import run_diff
+        from core.tribunal_multimetrico import TribunalMultimetrico
 
-        raw = _to_dict(
-            run_diff(
-                text_a=source,
-                text_b=response,
-                experimental=True,
-                domain="generic",
-                enable_modules=None,
-            )
-        )
+        tribunal = TribunalMultimetrico()
+        v = tribunal.evaluar(source, response)
 
     except Exception as exc:
         logger.error(
@@ -488,26 +484,16 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
 
     latency_ms = round((time.perf_counter() - t0) * 1000, 2)
 
-    isi = _extract_isi(raw)
-    verdict = _extract_verdict(raw, isi)
-    fired_modules = _extract_fired_modules(raw)
-    manipulation_alert = _extract_manipulation_alert(raw)
+    isi = v.isi_final
+    verdict = v.zona
+    zona = v.zona
+    riesgo = v.riesgo
+    kappa_d = v.kappa_d
+    kappa_r = v.kappa_r
+    fired_modules = [m.nombre for m in v.modulos_disparados]
+    manipulation_alert = {"triggered": False, "sources": []}
 
-    # ── Zona / Riesgo (3-zone classification) ─────────────────────────
-    kappa_d = float(getattr(settings, "kappa_d", 0.56))
-    kappa_r = float(getattr(settings, "kappa_r", 0.15))
-
-    if isi < kappa_r:
-        zona = "COLAPSO_ESTRUCTURAL"
-        riesgo = "CRITICAL"
-    elif isi < kappa_d:
-        zona = "RUPTURA_RECUPERABLE"
-        riesgo = "HIGH"
-    else:
-        zona = "COHERENTE"
-        riesgo = "LOW"
-
-    # ── R3.2 Topological score (optional module) ──────────────────────
+    # ── R3.2 Topological score ────────────────────────────────────────
     topological_score = 0.0
     lexical_overlap = 0.0
     audit_hash = ""
@@ -522,12 +508,12 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
         pass
 
     logger.info(
-        "public_demo ip_hash=%s src_len=%d res_len=%d isi=%.6f verdict=%s modules=%d latency_ms=%.2f",
+        "public_demo ip_hash=%s src_len=%d res_len=%d isi=%.6f zona=%s modules=%d latency_ms=%.2f",
         ip_hash,
         len(source),
         len(response),
         isi,
-        verdict,
+        zona,
         len(fired_modules),
         latency_ms,
     )
@@ -546,5 +532,9 @@ async def public_demo_audit(payload: DemoRequest, request: Request) -> DemoRespo
         topological_score=round(topological_score, 6),
         lexical_overlap=round(lexical_overlap, 6),
         audit_hash=audit_hash,
+        r3_3_drift=round(v.r3_3_drift, 6),
+        r3_4_entropy=round(v.r3_4_entropy, 6),
+        r3_5_kolmogorov=round(v.r3_5_kolmogorov, 6),
+        r3_6_surprisal=round(v.r3_6_surprisal, 6),
         demo=True,
     )
