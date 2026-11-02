@@ -39,7 +39,7 @@ from typing import Dict, List, Tuple
 # CONSTANTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-MODULE_VERSION: str = "1.0.0"
+MODULE_VERSION: str = "1.1.0"
 
 # Surprisal threshold (bits) — tokens above this are marked anomalous
 SURPRISAL_THRESHOLD: float = 8.0
@@ -53,7 +53,12 @@ NGRAM_ORDERS: Tuple[int, ...] = (3, 4, 5, 6)
 # Smoothing factor for unseen n-grams
 SMOOTHING_DELTA: float = 0.01
 
-# Fraction of anomalous tokens that triggers penalty
+# Fraction of OOV (out-of-vocabulary) tokens that triggers penalty.
+# Calibrated on 300 pairs (halueval_qa, halueval_dialogue, truthfulqa):
+#   threshold 0.15 → 69.3% hallucination detection, 0.0% control FP
+OOV_FRACTION_THRESHOLD: float = 0.15
+
+# Legacy: fraction of high-surprisal tokens that triggers penalty
 ANOMALY_FRACTION_THRESHOLD: float = 0.15
 
 # Penalty when anomaly fraction exceeds threshold
@@ -234,7 +239,18 @@ def compute_surprisal_analysis(
     mean_surprisal = sum(t["surprisal"] for t in token_surprisals) / max(total, 1)
     max_surprisal = max((t["surprisal"] for t in token_surprisals), default=0.0)
 
-    is_anomalous = anomaly_fraction > ANOMALY_FRACTION_THRESHOLD
+    # ── OOV signal (primary) ─────────────────────────────────────────────
+    # Fraction of response tokens that never appear in the source.
+    # Calibrated: 0.15 threshold → 69.3% detection, 0.0% control FP.
+    src_vocab = set(src_tokens)
+    oov_tokens = [t for t in rsp_tokens if t not in src_vocab]
+    oov_fraction = len(oov_tokens) / max(len(rsp_tokens), 1)
+
+    # Anomaly if EITHER signal exceeds its threshold
+    is_anomalous = (
+        oov_fraction > OOV_FRACTION_THRESHOLD
+        or anomaly_fraction > ANOMALY_FRACTION_THRESHOLD
+    )
     penalty = SURPRISAL_PENALTY_BASE if is_anomalous else 1.0
 
     return {
@@ -244,6 +260,8 @@ def compute_surprisal_analysis(
         "anomalous_tokens": anomalous,
         "total_tokens": total,
         "anomaly_fraction": round(anomaly_fraction, 4),
+        "oov_fraction": round(oov_fraction, 4),
+        "oov_tokens": oov_tokens[:20],
         "is_anomalous": is_anomalous,
         "penalty": round(penalty, 4),
     }

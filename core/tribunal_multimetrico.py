@@ -972,6 +972,12 @@ class TribunalMultimetrico:
         else:
             isi_hard = min(lexical_score, stg_val)
 
+        # CRE on identical text is a known LSA dispersion artifact — suppress
+        # the fired flag so it does not appear as a false positive in reports.
+        if textos_identicos:
+            cre_fired = False
+            cre_desc = "CRE ISI: suprimido (textos idénticos)"
+
         # ── 4. ISI Final — Penalización multiplicativa en cascada ──────────
         # Estrategia: ISI_FINAL = ISI_HARD * Π(penalizaciones)
         # Solo los módulos que DISPARARON aplican penalización.

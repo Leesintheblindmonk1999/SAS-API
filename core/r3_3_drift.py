@@ -104,12 +104,19 @@ def _token_set(text: str) -> set:
 
 
 def _lexical_isi(source_set: set, response_set: set) -> float:
-    """Compute lexical ISI as Jaccard similarity between content word sets."""
-    if not source_set or not response_set:
+    """Compute coverage-based ISI: fraction of response content words found in source.
+
+    IMPORTANT: This uses RECALL (coverage) of the response against the source,
+    NOT Jaccard. Jaccard penalizes the source for containing words absent from
+    a short sentence, which produces false positives on identical text.
+
+    Example: sentence "Correct answer: Arthur's Magazine" against a long source
+    → Jaccard ≈ 0.17 (wrong), coverage = 1.0 (correct, all words are in source).
+    """
+    if not response_set:
         return 0.0
     intersection = source_set & response_set
-    union = source_set | response_set
-    return len(intersection) / max(len(union), 1)
+    return len(intersection) / len(response_set)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
