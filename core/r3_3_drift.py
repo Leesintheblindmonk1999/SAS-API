@@ -69,7 +69,9 @@ def _split_sentences(text: str) -> List[str]:
     sentences = _RE_SENTENCE.split(text)
     if len(sentences) <= 1:
         sentences = _RE_SENTENCE_FALLBACK.split(text)
-    return [s.strip() for s in sentences if s.strip()]
+    # Filter: only keep sentences with at least one alphanumeric word
+    # Prevents punctuation-only fragments like "(" from splitting artifacts
+    return [s.strip() for s in sentences if s.strip() and _RE_TOKEN.search(s)]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

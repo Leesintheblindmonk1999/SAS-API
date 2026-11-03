@@ -274,10 +274,18 @@ def scan_entropy_spikes(
     if not profile_a or not profile_b:
         return [], []
 
+    # ── Identity guard ────────────────────────────────────────
+    # Identical texts cannot contain an injected segment. Without this
+    # guard, a long paragraph whose entropy exceeds the document mean by
+    # >30% is flagged as a spike even when B is byte-identical to A.
+    # (Observed on MedHallu: 406/10,000 A→A pairs scored ISI 0.85.)
+    if text_a.strip() == text_b.strip():
+        return [], []
+
     segs_a = _split_segments(text_a)
     segs_b = _split_segments(text_b)
 
-    # Baseline: mean entropy of A
+    # Baseline: mean entropy of A (fallback when segment counts differ)
     baseline_a = float(np.mean([s.entropy for s in profile_a])) if profile_a else 1.0
     if baseline_a < 0.01:
         baseline_a = 1.0
@@ -286,13 +294,25 @@ def scan_entropy_spikes(
     high_entropy_idx = []
 
     for i, seg_b in enumerate(profile_b):
-        ratio = seg_b.entropy / baseline_a
+        # ── Signal 1: entropy ratio ───────────────────────────
+        # Compare against the CORRESPONDING segment of A when available.
+        # Comparing against the document-wide mean conflates paragraph
+        # length with information density: a long paragraph has higher
+        # entropy than a short one regardless of content, so the global
+        # mean produces length-driven false spikes.
+        if i < len(profile_a) and profile_a[i].entropy > 0.01:
+            reference_entropy = profile_a[i].entropy
+        else:
+            reference_entropy = baseline_a
+
+        ratio = seg_b.entropy / reference_entropy
         seg_b.spike_ratio = round(ratio, 4)
 
-        # Signal 1: entropy ratio spike (relaxed to 0.20 — relative spike)
-        entropy_spike = (seg_b.entropy - baseline_a) / baseline_a > 0.20
+        entropy_spike = (seg_b.entropy - reference_entropy) / reference_entropy > 0.20
 
-        # Signal 2: vocabulary injection (low Jaccard with corresponding A segment)
+        # ── Signal 2: vocabulary injection ────────────────────
+        # Low Jaccard with the corresponding A segment signals new
+        # vocabulary introduced by B.
         if i < len(segs_a):
             jaccard = _vocab_jaccard(segs_a[i], segs_b[i] if i < len(segs_b) else "")
         else:
@@ -300,11 +320,13 @@ def scan_entropy_spikes(
             jaccard = 0.0
         vocab_injection = jaccard < 0.25
 
-        # DUAL SIGNAL: both must fire (protects specificity)
-        if (entropy_spike or vocab_injection) and seg_b.word_count >= MIN_SEGMENT_WORDS:
-            # Extra guard: if entropy_spike alone (no vocab injection),
-            # only flag if ratio > 1.30 (strong spike)
-            if vocab_injection or ratio > 1.30:
+        # ── Dual signal ───────────────────────────────────────
+        # Vocabulary injection is sufficient on its own (new words are
+        # direct evidence of injection). An entropy spike alone requires
+        # a strong ratio (>1.30) to fire, because entropy is sensitive to
+        # segment length and punctuation density.
+        if seg_b.word_count >= MIN_SEGMENT_WORDS:
+            if vocab_injection or (entropy_spike and ratio > 1.30):
                 seg_b.spike = True
                 seg_b.spike_ratio = round(ratio, 4)
                 spikes.append(seg_b)
