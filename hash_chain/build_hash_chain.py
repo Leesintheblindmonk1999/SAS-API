@@ -110,14 +110,28 @@ if os.path.exists(dc_yml):
     lines.append(f"{l5}  docker-compose.yml")
     print(f"L5 (docker-compose.yml): {l5}")
 
-# ── Level 6: self-hash of chain.txt ─────────────────────────────────
+# ── Level 6: self-hash of chain.txt (bootstrap to convergence) ──────
 chain_path = os.path.join(OUT, "chain.txt")
-# Write preliminary chain
+
+# Write preliminary chain (without L6)
 with open(chain_path, "w", encoding="utf-8") as f:
     f.write("\n".join(lines) + "\n")
 
-l6 = sha256_file(chain_path)
+# Bootstrap: update L6 until self-hash converges
+for _ in range(10):
+    l6 = sha256_file(chain_path)
+    tentative = lines + [f"{l6}  chain.txt (self-hash)"]
+    tentative_text = "\n".join(tentative) + "\n"
+    # Check if current file already has this L6
+    current = open(chain_path, encoding="utf-8").read()
+    if current == tentative_text:
+        break
+    # Write new version with L6
+    with open(chain_path, "w", encoding="utf-8") as f:
+        f.write(tentative_text)
+
 lines.append(f"{l6}  chain.txt (self-hash)")
+print(f"L6 (chain self-hash): {l6}")
 
 # Rewrite with self-hash included
 with open(chain_path, "w", encoding="utf-8") as f:
