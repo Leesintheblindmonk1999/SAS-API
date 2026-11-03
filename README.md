@@ -1,6 +1,6 @@
 # SAS — Symbiotic Autoprotection System
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19702379.svg)](https://doi.org/10.5281/zenodo.19702379)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23917127.svg)](https://doi.org/10.5281/zenodo.23917127)
 [![Tribunal v1.3.0](https://img.shields.io/badge/Tribunal-v1.3.0-purple)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.1 Guard](https://img.shields.io/badge/R3.1_Guard-F1_0.833-orange)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.2 Topological](https://img.shields.io/badge/R3.2_Topological-7%2F7_tests-brightgreen)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
@@ -21,8 +21,11 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](requirements.txt)
 [![License](https://img.shields.io/badge/license-GPL--3.0%20%2B%20Durante%20Invariance-blue)](LICENSE.md)
 [![Status](https://img.shields.io/badge/status-production%20v1.3.0-brightgreen)](#scope-and-limitations)
-[![Tribunal Benchmark](https://img.shields.io/badge/Tribunal-99.17%25_accuracy-brightgreen)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
-[![Precision](https://img.shields.io/badge/Precision-100%25-success)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![Benchmark](https://img.shields.io/badge/30%2C790_pairs-4_datasets-brightgreen)](https://doi.org/10.5281/zenodo.23917127)
+[![F1](https://img.shields.io/badge/F1-0.8901-success)](https://doi.org/10.5281/zenodo.23917127)
+[![Precision](https://img.shields.io/badge/Precision-0.9987-success)](https://doi.org/10.5281/zenodo.23917127)
+[![Recall](https://img.shields.io/badge/Recall-0.8028-yellow)](https://doi.org/10.5281/zenodo.23917127)
+[![False Positives](https://img.shields.io/badge/FP-22_of_20%2C768_controls-informational)](https://doi.org/10.5281/zenodo.23917127)
 [![OTS Proof](https://img.shields.io/badge/OpenTimestamps-proof-blueviolet)](docs/benchmark_complete_20260429_172647.json.ots)
 
 **SAS — Symbiotic Autoprotection System** is an open-source structural coherence auditing system. It classifies (source, response) text pairs into **3 structural zones** using the **SAS Multimetric Tribunal v1.3.0**: 13 detection modules with cascading multiplicative penalty, including 6 R3 extension modules (R3.1–R3.6).
@@ -209,25 +212,42 @@ Localizes hallucination at the token level by computing per-token self-informati
 | **RECOVERABLE RUPTURE** | **B** | κR ≤ ISI < κD (0.56) | HIGH | Review / Flag |
 | **COHERENT** | **A** | ISI ≥ κD (0.56) | LOW | Pass |
 
-### Benchmark (v9)
+### Benchmark (v1.3.0 — 30,790 pairs, 4 public datasets)
 
-| Metric | Core Tribunal (1,800 pairs) | + R3.1 Guard (N1 audit) | FinQA Cross-Query |
-|--------|-----------------------------|------------------------|-------------------|
-| **F1 Score** | **98.99%** | **0.833** | **87.0%** detection |
-| **Precision** | **100.00%** (0 false positives) | — | — |
-| **Accuracy** | **99.00%** | — | — |
-| **ISI Separation** | **0.8323** | — | — |
-| **R3.1 Abstentions** | — | **58 → 1 (κC, −98%)** | — |
-| **R3.2 Tests** | — | **7/7 PASS** | — |
-| **R3.3 Drift** | — | ✅ Break point detection | — |
-| **R3.4 Entropy** | — | ✅ ΔH anomaly detection | — |
-| **R3.5 Kolmogorov** | — | ✅ zlib ratio analysis | — |
-| **R3.6 Surprisal** | — | ✅ Token-level localization | — |
-| **Total modules** | **7 core** | **+6 R3 extensions** | **= 13 modules** |
-| **Corpora** | halueval_dialogue, halueval_qa, truthfulqa | N1 (1,800 × 4 conditions) | financiero_finqa (1,657 pairs) |
+| Dataset | Pairs | Precision | Recall | F1 | Accuracy | FP |
+|---------|------:|----------:|-------:|---:|---------:|---:|
+| HaluEval-QA | 10,000 | 0.9999 | 0.8111 | 0.8956 | 0.9055 | 1 |
+| HaluEval-Dialogue | 10,000 | 0.9973 | 0.7805 | 0.8757 | 0.8892 | 21 |
+| TruthfulQA | 790 | 1.0000 | 0.9797 | 0.9898 | 0.9899 | 0 |
+| MedHallu (format-controlled) | 10,000 | — | 0.8510 | — | — | 1 |
+| **AGGREGATE** | **30,790** | **0.9987** | **0.8028** | **0.8901** | **0.9009** | **22** |
+
+**MedHallu note:** precision is not directly comparable because the negative class (A→A') is a length artifact (A' = 15% of A). The format-controlled detection rate (85.10%) is the correct metric for this corpus.
+
+**Per-module firing (HaluEval-QA, hallucination vs control):**
+
+| Module | Hallucination | Control | Discriminative |
+|--------|--------------:|--------:|---------------:|
+| lexical_baseline | 99.75% | 0.00% | +99.75% |
+| source_target_guard | 28.10% | 0.00% | +28.10% |
+| flow_penalty | 4.76% | 0.00% | +4.76% |
+| negation_penalty | 36.08% | 0.00% | +36.08% |
+| cre_isi | 0.15% | 0.00% | +0.15% |
+| arithmetic_penalty | 0.00% | 0.00% | 0.00% |
+| reference_penalty | 0.00% | 0.07% | −0.07% |
+| r3_1_guard | 74.18% | 0.00% | +74.18% |
+| r3_2_topological | 21.33% | 0.00% | +21.33% |
+| r3_3_drift | 0.14% | 0.01% | +0.13% |
+| r3_4_entropy | 69.12% | 0.00% | +69.12% |
+| r3_5_kolmogorov | 98.34% | 0.00% | +98.34% |
+| r3_6_surprisal | 54.48% | 0.00% | +54.48% |
+
+**Latency:** ~6 ms/pair (HaluEval), ~20 ms/pair (MedHallu, longer texts). Single CPU, AMD Ryzen 5 5600X, Python 3.13.
+
+**Regulatory submission:** [10.5281/zenodo.23917127](https://doi.org/10.5281/zenodo.23917127) — 46-file package, SHA-256 manifest, 0 audit discrepancies.
 
 **Paper v9 (Qeios):** DOI 10.32388/T420IV — κC + R3.2 + hash chain documented  
-**Supplement:** SAS_v9_Supplements.zip (SHA-256 verified)
+**Supplement:** SAS_Zenodo_Supplements.zip (SHA-256 verified)
 
 ---
 
@@ -391,12 +411,23 @@ The entire SAS-API system is protected by a **6-level nested SHA-256 hash chain*
 
 | Level | File | Description |
 |-------|------|-------------|
-| L1 | `hashes_individuales.txt` | SHA-256 of every `.py` file (109 files) |
-| L2 | `core_modules_concatenated` | SHA-256 of the 13 tribunal modules concatenated |
+| L1 | `hashes_individuales.txt` | SHA-256 of every `.py` file (108 files) |
+| L2 | `core_modules_concatenated` | SHA-256 of the 12 tribunal modules concatenated |
 | L3 | `app/main.py` | SHA-256 of the API entry point |
 | L4 | `requirements.txt` | SHA-256 of dependencies |
 | L5 | `docker-compose.yml` | SHA-256 of deployment config |
 | L6 | `chain.txt` (self-hash) | SHA-256 of the chain itself |
+
+**Current values (v1.3.0, post-MedHallu fixes):**
+
+```
+L1: f940514600a451a2256799695fa56465da627accc371faf46ea0fcee8a09e319
+L2: 97c4966aabc378fb9193c1cd6f15140c72bb77f9c246372ffbb282c1e4b69a25
+L3: b6290c5b49c35305d39ce8cfd689b6d377e091e85eccecaa385610f9a1ea36ce
+L4: 3f0fe473610f461e052876bb46b9f7ae51cd0d3da08b206de07dbc3f5468cf87
+L5: 748ed05910c1a6ccb12b985c1b1b115e9e9077e25b6732439c3c4ce8ceaed478
+L6: ff7cb92920e8e1788876177e5c6733a7ed6065fd049669b8ac76b473c01dd0d8
+```
 
 **Verification:**
 
@@ -443,7 +474,7 @@ The R0 audit validates the research pipeline infrastructure and baseline stabili
 | `sample_strat_4800` | 4,800 | 200 | 3,600 / 1,200 | 0.743 | 0.741 |
 | `sample_strat_12000` | 12,000 | 500 | 9,000 / 3,000 | 0.742 | 0.740 |
 
-> **Note:** These R0 results use clean-self controls (source = A_clean, response = A_clean), which can inflate performance for dissimilarity-based modules. They validate infrastructure and baseline stability, not production-grade hallucination detection. The current production engine is the multimetric tribunal (v1.1.0), which uses a fundamentally different architecture.
+> **Note:** These R0 results use clean-self controls (source = A_clean, response = A_clean), which can inflate performance for dissimilarity-based modules. They validate infrastructure and baseline stability, not production-grade hallucination detection. The current production engine is the multimetric tribunal (v1.3.0), which uses a fundamentally different architecture.
 
 ### R1-D — Structural Evaluation over Declarative Corpus
 
@@ -569,14 +600,15 @@ If you use SAS or the multimetric tribunal in academic work, please cite:
 @software{durante2026sas,
   author = {Gonzalo Emir Durante},
   title = {SAS — Symbiotic Autoprotection System},
-  doi = {10.5281/zenodo.19702379},
+  doi = {10.5281/zenodo.23917127},
   year = {2026},
-  publisher = {Zenodo}
+  publisher = {Zenodo},
+  note = {Regulatory submission v1.3.0. Previous version: 10.5281/zenodo.19702379}
 }
 
 @software{durante2026tribunal,
   author = {Gonzalo Emir Durante},
-  title = {SAS Multimetric Tribunal v1.1.0},
+  title = {SAS Multimetric Tribunal v1.3.0},
   note = {DOI 10.32388/T420IV (Qeios)},
   year = {2026}
 }
