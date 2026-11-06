@@ -887,8 +887,26 @@ def lexical_overlap(source: str, response: str) -> float:
 # CONDITIONAL GATE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def evaluate_r3_2(source: str, response: str, lexical_overlap_value: Optional[float] = None) -> Dict[str, Any]:
-    """Evaluate R3.2 with conditional gate."""
+def evaluate_r3_2(source: str, response: str, lexical_overlap_value: Optional[float] = None,
+                  fingerprint_dist: Optional[float] = None) -> Dict[str, Any]:
+    """Evaluate R3.2 with conditional gate.
+
+    Parameters
+    ----------
+    source : str
+        Source text.
+    response : str
+        Response text.
+    lexical_overlap_value : float, optional
+        Pre-computed lexical overlap (Jaccard). Computed if None.
+    fingerprint_dist : float, optional
+        Structural fingerprint distance. If provided, PARAPHRASE_RESCUE
+        is only triggered when fingerprint_dist < KAPPA_P (0.4039).
+        This prevents the dictionary-based gate from rescuing hallucinations
+        that share accidental lexical overlap.
+    """
+    KAPPA_P = 0.4039  # fingerprint rescue threshold (calibrated on MedHallu)
+
     if lexical_overlap_value is None:
         lexical_overlap_value = lexical_overlap(source, response)
 
@@ -924,8 +942,14 @@ def evaluate_r3_2(source: str, response: str, lexical_overlap_value: Optional[fl
         verdict = "CONTRADICTION_VETO"
         adjustment = CONTRADICTION_VETO_PENALTY
     elif lexical_overlap_value < LEXICAL_OVERLAP_THRESHOLD and best_score >= KAPPA_D:
-        verdict = "PARAPHRASE_RESCUE"
-        adjustment = PARAPHRASE_RESCUE_BOOST
+        # PARAPHRASE_RESCUE: only if fingerprint confirms (when available)
+        if fingerprint_dist is not None and fingerprint_dist >= KAPPA_P:
+            # Fingerprint says this is NOT a paraphrase → block the rescue
+            verdict = "INACTIVE"
+            adjustment = 0.0
+        else:
+            verdict = "PARAPHRASE_RESCUE"
+            adjustment = PARAPHRASE_RESCUE_BOOST
     else:
         verdict = "INACTIVE"
         adjustment = 0.0

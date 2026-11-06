@@ -1,0 +1,136 @@
+[
+  {
+    "id": "A1",
+    "type": "detect",
+    "expected": "COLAPSO_ESTRUCTURAL",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.140625,
+    "fp_dist": 0.0084,
+    "fp_rescue": true,
+    "modules_fired": [
+      "source_target_guard"
+    ],
+    "correct": true
+  },
+  {
+    "id": "A2",
+    "type": "detect",
+    "expected": "COLAPSO_ESTRUCTURAL",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.1,
+    "fp_dist": 0.1942,
+    "fp_rescue": true,
+    "modules_fired": [
+      "r3_2_topological"
+    ],
+    "correct": true
+  },
+  {
+    "id": "A3",
+    "type": "detect",
+    "expected": "COLAPSO_ESTRUCTURAL",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.09,
+    "fp_dist": 0.0147,
+    "fp_rescue": true,
+    "modules_fired": [
+      "source_target_guard"
+    ],
+    "correct": true
+  },
+  {
+    "id": "A4",
+    "type": "detect",
+    "expected": "COLAPSO_ESTRUCTURAL",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.140625,
+    "fp_dist": 0.0091,
+    "fp_rescue": true,
+    "modules_fired": [
+      "source_target_guard"
+    ],
+    "correct": true
+  },
+  {
+    "id": "A5",
+    "type": "detect",
+    "expected": "COLAPSO_ESTRUCTURAL",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.09,
+    "fp_dist": 0.0149,
+    "fp_rescue": true,
+    "modules_fired": [
+      "source_target_guard"
+    ],
+    "correct": true
+  },
+  {
+    "id": "B1",
+    "type": "no_detect",
+    "expected": "COHERENTE",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.124548,
+    "fp_dist": 0.1554,
+    "fp_rescue": true,
+    "modules_fired": [
+      "cre_isi"
+    ],
+    "correct": false
+  },
+  {
+    "id": "B2",
+    "type": "no_detect",
+    "expected": "COHERENTE",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.01287,
+    "fp_dist": 0.1294,
+    "fp_rescue": true,
+    "modules_fired": [
+      "source_target_guard",
+      "flow_penalty",
+      "negation_penalty",
+      "cre_isi",
+      "r3_6_surprisal"
+    ],
+    "correct": false
+  },
+  {
+    "id": "B3",
+    "type": "no_detect",
+    "expected": "COHERENTE",
+    "got": "RUPTURA_RECUPERABLE",
+    "isi": 0.366667,
+    "fp_dist": 0.0516,
+    "fp_rescue": true,
+    "modules_fired": [
+      "r3_6_surprisal"
+    ],
+    "correct": false
+  },
+  {
+    "id": "B4",
+    "type": "no_detect",
+    "expected": "COHERENTE",
+    "got": "COLAPSO_ESTRUCTURAL",
+    "isi": 0.136209,
+    "fp_dist": 0.2146,
+    "fp_rescue": true,
+    "modules_fired": [
+      "cre_isi"
+    ],
+    "correct": false
+  },
+  {
+    "id": "B5",
+    "type": "no_detect",
+    "expected": "COHERENTE",
+    "got": "RUPTURA_RECUPERABLE",
+    "isi": 0.434211,
+    "fp_dist": 0.3896,
+    "fp_rescue": true,
+    "modules_fired": [
+      "r3_6_surprisal"
+    ],
+    "correct": false
+  }
+]

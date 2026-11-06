@@ -1,0 +1,241 @@
+{
+  "dataset": "medico_medhallu",
+  "n_records": 1000,
+  "kappa_d": 0.56,
+  "kappa_r": 0.15,
+  "timestamp": "2026-11-05T23:44:35Z",
+  "analysis_1_firing": {
+    "n_records": 1000,
+    "module_stats": {
+      "lexical_baseline_score": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 999,
+        "rate_A_Ap": 0.999,
+        "fires_A_B": 1000,
+        "rate_A_B": 1.0,
+        "fires_A_App": 2,
+        "rate_A_App": 0.002,
+        "discriminative_A_App_vs_A_Ap": -0.997
+      },
+      "source_target_guard": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 0,
+        "rate_A_Ap": 0.0,
+        "fires_A_B": 86,
+        "rate_A_B": 0.086,
+        "fires_A_App": 5,
+        "rate_A_App": 0.005,
+        "discriminative_A_App_vs_A_Ap": 0.005
+      },
+      "flow_penalty": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 867,
+        "rate_A_Ap": 0.867,
+        "fires_A_B": 719,
+        "rate_A_B": 0.719,
+        "fires_A_App": 672,
+        "rate_A_App": 0.672,
+        "discriminative_A_App_vs_A_Ap": -0.195
+      },
+      "negation_penalty": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 731,
+        "rate_A_Ap": 0.731,
+        "fires_A_B": 549,
+        "rate_A_B": 0.549,
+        "fires_A_App": 457,
+        "rate_A_App": 0.457,
+        "discriminative_A_App_vs_A_Ap": -0.274
+      },
+      "cre_isi": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 219,
+        "rate_A_Ap": 0.219,
+        "fires_A_B": 54,
+        "rate_A_B": 0.054,
+        "fires_A_App": 561,
+        "rate_A_App": 0.561,
+        "discriminative_A_App_vs_A_Ap": 0.342
+      },
+      "arithmetic_penalty": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 0,
+        "rate_A_Ap": 0.0,
+        "fires_A_B": 0,
+        "rate_A_B": 0.0,
+        "fires_A_App": 0,
+        "rate_A_App": 0.0,
+        "discriminative_A_App_vs_A_Ap": 0.0
+      },
+      "reference_penalty": {
+        "fires_A_A": 1,
+        "rate_A_A": 0.001,
+        "fires_A_Ap": 0,
+        "rate_A_Ap": 0.0,
+        "fires_A_B": 0,
+        "rate_A_B": 0.0,
+        "fires_A_App": 1,
+        "rate_A_App": 0.001,
+        "discriminative_A_App_vs_A_Ap": 0.001
+      },
+      "r3_1_guard": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 0,
+        "rate_A_Ap": 0.0,
+        "fires_A_B": 981,
+        "rate_A_B": 0.981,
+        "fires_A_App": 0,
+        "rate_A_App": 0.0,
+        "discriminative_A_App_vs_A_Ap": 0.0
+      },
+      "r3_2_topological": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 682,
+        "rate_A_Ap": 0.682,
+        "fires_A_B": 170,
+        "rate_A_B": 0.17,
+        "fires_A_App": 0,
+        "rate_A_App": 0.0,
+        "discriminative_A_App_vs_A_Ap": -0.682
+      },
+      "r3_3_drift": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 0,
+        "rate_A_Ap": 0.0,
+        "fires_A_B": 47,
+        "rate_A_B": 0.047,
+        "fires_A_App": 417,
+        "rate_A_App": 0.417,
+        "discriminative_A_App_vs_A_Ap": 0.417
+      },
+      "r3_4_entropy": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 399,
+        "rate_A_Ap": 0.399,
+        "fires_A_B": 388,
+        "rate_A_B": 0.388,
+        "fires_A_App": 0,
+        "rate_A_App": 0.0,
+        "discriminative_A_App_vs_A_Ap": -0.399
+      },
+      "r3_5_kolmogorov": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 996,
+        "rate_A_Ap": 0.996,
+        "fires_A_B": 996,
+        "rate_A_B": 0.996,
+        "fires_A_App": 0,
+        "rate_A_App": 0.0,
+        "discriminative_A_App_vs_A_Ap": -0.996
+      },
+      "r3_6_surprisal": {
+        "fires_A_A": 0,
+        "rate_A_A": 0.0,
+        "fires_A_Ap": 0,
+        "rate_A_Ap": 0.0,
+        "fires_A_B": 900,
+        "rate_A_B": 0.9,
+        "fires_A_App": 11,
+        "rate_A_App": 0.011,
+        "discriminative_A_App_vs_A_Ap": 0.011
+      }
+    },
+    "zones": {
+      "A_A": {
+        "A": 1000
+      },
+      "A_Ap": {
+        "F-S": 287,
+        "A": 681,
+        "B": 32
+      },
+      "A_B": {
+        "F-S": 873,
+        "A": 127
+      },
+      "A_App": {
+        "B": 656,
+        "F-S": 201,
+        "A": 143
+      }
+    },
+    "isi_mean": {
+      "A_A": 1.0,
+      "A_Ap": 0.4069,
+      "A_B": 0.0767,
+      "A_App": 0.3243
+    }
+  },
+  "analysis_2_fingerprint": {
+    "variant_A_3rel": {
+      "A_App": {
+        "mean": 0.386,
+        "median": 0.3815,
+        "p25": 0.3661,
+        "p75": 0.4024
+      },
+      "A_B": {
+        "mean": 1.0016,
+        "median": 0.9894,
+        "p25": 0.9835,
+        "p75": 0.9944
+      }
+    },
+    "variant_B_12feat": {
+      "A_App": {
+        "mean": 0.144,
+        "median": 0.1298,
+        "p25": 0.1088,
+        "p75": 0.1752
+      },
+      "A_B": {
+        "mean": 0.6643,
+        "median": 0.657,
+        "p25": 0.6178,
+        "p75": 0.7224
+      }
+    }
+  },
+  "analysis_3_compression": {
+    "A_App": {
+      "delta_sr": {
+        "mean": 89.959,
+        "median": 77.0,
+        "p25": 62,
+        "p75": 97
+      },
+      "asymmetry": {
+        "mean": 45.384,
+        "median": 33.0,
+        "p25": 14,
+        "p75": 67
+      }
+    },
+    "A_B": {
+      "delta_sr": {
+        "mean": 68.004,
+        "median": 54.0,
+        "p25": 40,
+        "p75": 74
+      },
+      "asymmetry": {
+        "mean": 658.439,
+        "median": 655.5,
+        "p25": 558,
+        "p75": 756
+      }
+    }
+  },
+  "elapsed_seconds": 78.54
+}

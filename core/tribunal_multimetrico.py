@@ -91,6 +91,7 @@ License: Durante Invariance License v1.0
 from __future__ import annotations
 
 import math
+import statistics
 import json
 import hashlib
 import datetime
@@ -546,6 +547,17 @@ class TribunalMultimetrico:
             r'\b(\d+)\s*(?:million|billion|thousand|mg|kg|km|%)?\b',
             re.IGNORECASE
         )
+        # Drug name pattern: common suffixes in Spanish/English pharmacology
+        drug_pattern = re.compile(
+            r'\b([a-záéíóúñ]+(?:pril|sartan|lol|cilline|mycin|pram|oxina|'
+            r'feno|zina|dipina|tidina|vir|navir|conazol|profeno|'
+            r'formina|gliptina|gliflozina|statina|'
+            r'ciclina|cef|prazol|triptilina|oxetina|azepam|barbital|'
+            r'caina|mab|zumab|ximab|umab|cept|parina|coxib|'
+            r'dipino|pino|lina|gina|fibrato|vastatina|'
+            r'cogín|cobán|tán))\b',
+            re.IGNORECASE
+        )
 
         # Extraer entidades de A
         locations_a = set(location_pattern.findall(text_a))
@@ -577,7 +589,7 @@ class TribunalMultimetrico:
         if years_mutados and years_nuevos:
             n_mutaciones = min(len(years_mutados), len(years_nuevos))
             mutaciones.append(f"{n_mutaciones} año(s) mutado(s)")
-            penalizacion *= (0.65 ** n_mutaciones)
+            penalizacion *= (0.50 ** n_mutaciones)
 
         # 3. Mutaciones de nombres propios (gravedad media)
         # Solo considerar nombres que aparecen 1-2 veces (no genéricos)
@@ -590,17 +602,111 @@ class TribunalMultimetrico:
             mutaciones.append(f"{n_mutaciones} nombre(s) mutado(s)")
             penalizacion *= (0.80 ** n_mutaciones)
 
+        # 3b. Mutaciones de fármacos (gravedad alta en contexto médico)
+        drugs_a = set(drug_pattern.findall(text_a))
+        drugs_b = set(drug_pattern.findall(text_b))
+        drugs_mutados = drugs_a - drugs_b
+        drugs_nuevos = drugs_b - drugs_a
+        if drugs_mutados and drugs_nuevos:
+            n_mutaciones = min(len(drugs_mutados), len(drugs_nuevos))
+            mutaciones.append(f"{n_mutaciones} fármaco(s) mutado(s)")
+            penalizacion *= (0.25 ** n_mutaciones)
+
+        # 3c. Inversión de relación causal
+        # Detecta cuando source dice "A causó B" y response dice "B causó A"
+        causal_pattern = re.compile(
+            r'\b(caus[oó]|provoc[oó]|deriv[oó]|gener[oó]|produj[oó]|'
+            r'origin[oó]|desencaden[oó]|motiv[oó]|induj[oó]|'
+            r'result[oó]|conduj[oó]|ocasion[oó]|suscit[oó]|'
+            r'caused|resulted|led to|triggered|induced|produced)\b',
+            re.IGNORECASE
+        )
+        causal_a = set(causal_pattern.findall(text_a.lower()))
+        causal_b = set(causal_pattern.findall(text_b.lower()))
+        if causal_a and causal_b:
+            # Both texts have causal language — check if arguments are inverted
+            # by looking at entity order around causal verbs
+            for verb in causal_a | causal_b:
+                # Find the clause containing this verb in each text
+                for txt_label, txt in [("source", text_a), ("response", text_b)]:
+                    sentences = re.split(r'[.!?]+', txt)
+                    for sent in sentences:
+                        if verb.lower() in sent.lower():
+                            # Extract entities before and after the verb
+                            parts = re.split(
+                                r'\b' + re.escape(verb) + r'\b', sent, flags=re.IGNORECASE
+                            )
+                            if len(parts) >= 2:
+                                before = set(re.findall(r'\b\w+\b', parts[0].lower()))
+                                after = set(re.findall(r'\b\w+\b', parts[1].lower()))
+                                # Store for comparison
+                                if txt_label == "source":
+                                    src_before, src_after = before, after
+                                else:
+                                    rsp_before, rsp_after = before, after
+            # Check inversion: source "A caused B" vs response "B caused A"
+            try:
+                # If source entities before verb appear after verb in response
+                overlap_before_after = len(src_before & rsp_after)
+                overlap_after_before = len(src_after & rsp_before)
+                if overlap_before_after >= 1 and overlap_after_before >= 1:
+                    mutaciones.append("inversión de relación causal")
+                    penalizacion *= 0.30
+            except NameError:
+                pass  # Not enough causal structure to compare
+
         # 4. Mutaciones de cantidades (gravedad media)
         # Comparar solo si hay números en ambos textos
         if quantities_a and quantities_b:
-            nums_a = {int(q[0]) for q in quantities_a if q[0].isdigit()}
-            nums_b = {int(q[0]) for q in quantities_b if q[0].isdigit()}
+            # Fix: findall returns strings (one capture group), not tuples
+            nums_a = set()
+            for q in quantities_a:
+                try:
+                    nums_a.add(int(q))
+                except (ValueError, TypeError):
+                    pass
+            nums_b = set()
+            for q in quantities_b:
+                try:
+                    nums_b.add(int(q))
+                except (ValueError, TypeError):
+                    pass
             nums_mutados = nums_a - nums_b
             nums_nuevos = nums_b - nums_a
             if nums_mutados and nums_nuevos:
                 n_mutaciones = min(len(nums_mutados), len(nums_nuevos))
                 mutaciones.append(f"{n_mutaciones} cantidad(es) mutada(s)")
                 penalizacion *= (0.75 ** n_mutaciones)
+
+            # 4b. Magnitude comparison: same unit, different magnitude
+            # Extract (value, unit) pairs — longer units first to avoid
+            # matching "mg" from "mg/dL"
+            quantity_pair_pattern = re.compile(
+                r'\b(\d+(?:\.\d+)?)\s*(mg/dL|g/dL|mcg|UI|mg|g|kg|ml|l|cm|mm|m|km|%|mmHg)\b',
+                re.IGNORECASE
+            )
+            pairs_a = set(quantity_pair_pattern.findall(text_a))
+            pairs_b = set(quantity_pair_pattern.findall(text_b))
+            if pairs_a and pairs_b:
+                # Find same-unit pairs with different magnitudes
+                units_a: Dict[str, List[float]] = {}
+                units_b: Dict[str, List[float]] = {}
+                for val_str, unit in pairs_a:
+                    units_a.setdefault(unit.lower(), []).append(float(val_str))
+                for val_str, unit in pairs_b:
+                    units_b.setdefault(unit.lower(), []).append(float(val_str))
+                for unit, vals_a in units_a.items():
+                    if unit in units_b:
+                        vals_b = units_b[unit]
+                        for va in vals_a:
+                            for vb in vals_b:
+                                if va != vb:
+                                    ratio = max(va, vb) / min(va, vb)
+                                    if ratio >= 2.0:
+                                        mutaciones.append(
+                                            f"magnitud {unit} {va:.0f}→{vb:.0f} (×{ratio:.1f})"
+                                        )
+                                        penalizacion *= 0.50
 
         disparo = penalizacion < 0.95
         desc = "; ".join(mutaciones) if mutaciones else "Sin mutaciones de entidades"
@@ -699,6 +805,11 @@ class TribunalMultimetrico:
         ajuste) y disparo=False. El ajuste aditivo se aplica en
         evaluar() post-cascada.
 
+        Uses structural fingerprint distance (κP = 0.4039) as an
+        additional gate: PARAPHRASE_RESCUE is only triggered when
+        fp_dist < κP, preventing accidental rescue of hallucinations
+        that share accidental lexical overlap.
+
         Returns:
             Tuple[valor, disparo, descripción, detalles_opcionales]
         """
@@ -706,7 +817,9 @@ class TribunalMultimetrico:
             return 1.0, False, "R3.2 Topological: no disponible", None
 
         try:
-            result = evaluate_r3_2(text_a, text_b)
+            # Compute fingerprint distance for gate
+            fp_dist = self._compute_fingerprint_dist(text_a, text_b)
+            result = evaluate_r3_2(text_a, text_b, fingerprint_dist=fp_dist)
             verdict = result["verdict"]
             score = result["topological_score"]
             lex = result["lexical_overlap"]
@@ -715,7 +828,7 @@ class TribunalMultimetrico:
             if verdict == "PARAPHRASE_RESCUE":
                 return 1.0, True, (
                     f"R3.2 Topological: PARAPHRASE_RESCUE "
-                    f"(score={score:.4f}, lex={lex:.4f})"
+                    f"(score={score:.4f}, lex={lex:.4f}, fp={fp_dist:.4f})"
                 ), result
             elif verdict == "CONTRADICTION_VETO":
                 return 1.0, True, (
@@ -725,12 +838,82 @@ class TribunalMultimetrico:
             else:
                 return 1.0, False, (
                     f"R3.2 Topological: INACTIVE "
-                    f"(score={score:.4f}, lex={lex:.4f})"
+                    f"(score={score:.4f}, lex={lex:.4f}, fp={fp_dist:.4f})"
                 ), result
 
         except Exception as e:
             logger.debug(f"R3.2 Topological error: {e}")
             return 1.0, False, f"R3.2 Topological: error ({e})", None
+
+    def _compute_fingerprint_dist(self, text_a: str, text_b: str) -> float:
+        """Compute structural fingerprint distance between two texts.
+        
+        12-dimensional feature vector (3 relational + 9 absolute).
+        Returns mean relative distance normalized by max of both values.
+        κP = 0.4039 is the rescue threshold (fp_dist < κP → paraphrase).
+        """
+        import zlib
+        from collections import Counter
+        
+        def _tokens(t: str):
+            return re.findall(r"\b\w+\b", t.lower())
+        
+        def _sentences(t: str):
+            return [s.strip() for s in re.split(r"[.!?]+", t) if s.strip()]
+        
+        def _shannon_entropy(t: str):
+            if not t: return 0.0
+            c = Counter(t); n = len(t)
+            return -sum((v / n) * math.log2(v / n) for v in c.values())
+        
+        FUNCTION_WORDS = set(
+            "the a an in on at of to for with by from as is are was were be been being "
+            "and or but not no so if then than that this these those it its he she they "
+            "we you i me my your our their him her them".split()
+        )
+        
+        def _relational(src, rsp):
+            s_sent = _sentences(src); r_sent = _sentences(rsp)
+            s_lens = [len(_tokens(s)) for s in s_sent]
+            r_lens = [len(_tokens(s)) for s in r_sent]
+            n = min(len(s_lens), len(r_lens))
+            corr = 0.0
+            if n >= 2:
+                try: corr = statistics.correlation(s_lens[:n], r_lens[:n])
+                except: corr = 0.0
+            def fw_ratio(t):
+                toks = _tokens(t)
+                return sum(1 for w in toks if w in FUNCTION_WORDS) / max(len(toks), 1)
+            fw_diff = abs(fw_ratio(src) - fw_ratio(rsp))
+            s_bigrams = set(zip(_tokens(src), _tokens(src)[1:]))
+            r_toks = _tokens(rsp)
+            r_bigrams = set(zip(r_toks, r_toks[1:]))
+            preserved = len(s_bigrams & r_bigrams) / max(len(s_bigrams), 1)
+            return {"sentence_len_corr": round(corr, 4), "fw_ratio_diff": round(fw_diff, 4),
+                    "bigram_preservation": round(preserved, 4)}
+        
+        def _absolute(t):
+            sents = _sentences(t); words = _tokens(t)
+            proper = [w for w in re.findall(r"\b[A-Z][a-z]+\b", t)
+                      if w.lower() not in ("the","a","an","in","on","at")]
+            numerals = re.findall(r"\d+", t)
+            negations = re.findall(r"\b(not|never|no|without|despite)\b", t.lower())
+            causal = re.findall(r"\b(because|therefore|thus|hence|so|since)\b", t.lower())
+            comp = len(zlib.compress(t.encode("utf-8"))) / max(len(t), 1)
+            return {"n_sentences": len(sents), "avg_sentence_len": len(words)/max(len(sents),1),
+                    "n_proper_nouns": len(proper), "n_numerals": len(numerals),
+                    "n_negations": len(negations), "n_causal": len(causal),
+                    "char_entropy": round(_shannon_entropy(t), 4), "comp_ratio": round(comp, 4)}
+        
+        f_src = {**_absolute(text_a), **_relational(text_a, text_a)}
+        f_rsp = {**_absolute(text_b), **_relational(text_a, text_b)}
+        keys = set(f_src) & set(f_rsp)
+        if not keys: return 1.0
+        dists = []
+        for k in keys:
+            denom = max(abs(f_src[k]), abs(f_rsp[k]), 1e-6)
+            dists.append(abs(f_src[k] - f_rsp[k]) / denom)
+        return sum(dists) / len(dists)
 
     def _calcular_r3_3_drift(
         self, text_a: str, text_b: str

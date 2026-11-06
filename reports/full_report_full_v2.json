@@ -1,0 +1,690 @@
+{
+  "script": "reproduce.py",
+  "version": "v1.4.0",
+  "mode": "full",
+  "timestamp": "2026-11-06T12:59:46Z",
+  "kappa_d": 0.56,
+  "kappa_r": 0.15,
+  "kappa_P": 0.4039,
+  "script_hash": "9730c86437bdcb1cff2a9e9f13398fa41124f820bccf0d55e7541ad15bc8a3a9",
+  "public_datasets": [
+    {
+      "suite": "halueval_qa",
+      "suite_label": "HaluEval QA",
+      "n_pairs": 10000,
+      "metrics": {
+        "precision": 0.9999,
+        "recall": 0.8111,
+        "f1": 0.8956,
+        "accuracy": 0.9055,
+        "confusion_matrix": {
+          "tp": 8111,
+          "fp": 1,
+          "fn": 1889,
+          "tn": 9999
+        }
+      },
+      "isi_distribution": {
+        "hallucination": {
+          "mean": 0.1265,
+          "median": 0.0171
+        },
+        "control": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "separation": 0.8735
+      },
+      "zones": {
+        "hallucination": {
+          "A": 1889,
+          "F-S": 7927,
+          "B": 184
+        },
+        "control": {
+          "A": 9999,
+          "B": 1
+        }
+      },
+      "module_stats": {
+        "lexical_baseline_score": {
+          "fires_hallucination": 9975,
+          "fires_control": 0,
+          "rate_hallucination": 0.9975,
+          "rate_control": 0.0,
+          "discriminative_power": 0.9975
+        },
+        "source_target_guard": {
+          "fires_hallucination": 2810,
+          "fires_control": 0,
+          "rate_hallucination": 0.281,
+          "rate_control": 0.0,
+          "discriminative_power": 0.281
+        },
+        "flow_penalty": {
+          "fires_hallucination": 476,
+          "fires_control": 0,
+          "rate_hallucination": 0.0476,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0476
+        },
+        "negation_penalty": {
+          "fires_hallucination": 3608,
+          "fires_control": 0,
+          "rate_hallucination": 0.3608,
+          "rate_control": 0.0,
+          "discriminative_power": 0.3608
+        },
+        "cre_isi": {
+          "fires_hallucination": 15,
+          "fires_control": 0,
+          "rate_hallucination": 0.0015,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0015
+        },
+        "arithmetic_penalty": {
+          "fires_hallucination": 0,
+          "fires_control": 0,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0
+        },
+        "reference_penalty": {
+          "fires_hallucination": 0,
+          "fires_control": 7,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0007,
+          "discriminative_power": -0.0007
+        },
+        "r3_1_guard": {
+          "fires_hallucination": 7418,
+          "fires_control": 0,
+          "rate_hallucination": 0.7418,
+          "rate_control": 0.0,
+          "discriminative_power": 0.7418
+        },
+        "r3_2_topological": {
+          "fires_hallucination": 2133,
+          "fires_control": 0,
+          "rate_hallucination": 0.2133,
+          "rate_control": 0.0,
+          "discriminative_power": 0.2133
+        },
+        "r3_3_drift": {
+          "fires_hallucination": 14,
+          "fires_control": 1,
+          "rate_hallucination": 0.0014,
+          "rate_control": 0.0001,
+          "discriminative_power": 0.0013
+        },
+        "r3_4_entropy": {
+          "fires_hallucination": 6912,
+          "fires_control": 0,
+          "rate_hallucination": 0.6912,
+          "rate_control": 0.0,
+          "discriminative_power": 0.6912
+        },
+        "r3_5_kolmogorov": {
+          "fires_hallucination": 9834,
+          "fires_control": 0,
+          "rate_hallucination": 0.9834,
+          "rate_control": 0.0,
+          "discriminative_power": 0.9834
+        },
+        "r3_6_surprisal": {
+          "fires_hallucination": 5448,
+          "fires_control": 0,
+          "rate_hallucination": 0.5448,
+          "rate_control": 0.0,
+          "discriminative_power": 0.5448
+        }
+      },
+      "latency_ms": {
+        "mean": 7.19,
+        "median": 6.86
+      },
+      "elapsed_seconds": 143.86
+    },
+    {
+      "suite": "halueval_dialogue",
+      "suite_label": "HaluEval Dialogue",
+      "n_pairs": 10000,
+      "metrics": {
+        "precision": 0.9973,
+        "recall": 0.7805,
+        "f1": 0.8757,
+        "accuracy": 0.8892,
+        "confusion_matrix": {
+          "tp": 7805,
+          "fp": 21,
+          "fn": 2195,
+          "tn": 9979
+        }
+      },
+      "isi_distribution": {
+        "hallucination": {
+          "mean": 0.1309,
+          "median": 0.0081
+        },
+        "control": {
+          "mean": 0.999,
+          "median": 1.0
+        },
+        "separation": 0.868
+      },
+      "zones": {
+        "hallucination": {
+          "F-S": 7784,
+          "A": 2195,
+          "B": 21
+        },
+        "control": {
+          "A": 9979,
+          "B": 21
+        }
+      },
+      "module_stats": {
+        "lexical_baseline_score": {
+          "fires_hallucination": 9988,
+          "fires_control": 0,
+          "rate_hallucination": 0.9988,
+          "rate_control": 0.0,
+          "discriminative_power": 0.9988
+        },
+        "source_target_guard": {
+          "fires_hallucination": 6621,
+          "fires_control": 0,
+          "rate_hallucination": 0.6621,
+          "rate_control": 0.0,
+          "discriminative_power": 0.6621
+        },
+        "flow_penalty": {
+          "fires_hallucination": 4176,
+          "fires_control": 0,
+          "rate_hallucination": 0.4176,
+          "rate_control": 0.0,
+          "discriminative_power": 0.4176
+        },
+        "negation_penalty": {
+          "fires_hallucination": 5871,
+          "fires_control": 0,
+          "rate_hallucination": 0.5871,
+          "rate_control": 0.0,
+          "discriminative_power": 0.5871
+        },
+        "cre_isi": {
+          "fires_hallucination": 2347,
+          "fires_control": 0,
+          "rate_hallucination": 0.2347,
+          "rate_control": 0.0,
+          "discriminative_power": 0.2347
+        },
+        "arithmetic_penalty": {
+          "fires_hallucination": 0,
+          "fires_control": 0,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0
+        },
+        "reference_penalty": {
+          "fires_hallucination": 2,
+          "fires_control": 0,
+          "rate_hallucination": 0.0002,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0002
+        },
+        "r3_1_guard": {
+          "fires_hallucination": 9650,
+          "fires_control": 0,
+          "rate_hallucination": 0.965,
+          "rate_control": 0.0,
+          "discriminative_power": 0.965
+        },
+        "r3_2_topological": {
+          "fires_hallucination": 2458,
+          "fires_control": 0,
+          "rate_hallucination": 0.2458,
+          "rate_control": 0.0,
+          "discriminative_power": 0.2458
+        },
+        "r3_3_drift": {
+          "fires_hallucination": 1580,
+          "fires_control": 21,
+          "rate_hallucination": 0.158,
+          "rate_control": 0.0021,
+          "discriminative_power": 0.1559
+        },
+        "r3_4_entropy": {
+          "fires_hallucination": 4145,
+          "fires_control": 0,
+          "rate_hallucination": 0.4145,
+          "rate_control": 0.0,
+          "discriminative_power": 0.4145
+        },
+        "r3_5_kolmogorov": {
+          "fires_hallucination": 9103,
+          "fires_control": 0,
+          "rate_hallucination": 0.9103,
+          "rate_control": 0.0,
+          "discriminative_power": 0.9103
+        },
+        "r3_6_surprisal": {
+          "fires_hallucination": 8612,
+          "fires_control": 0,
+          "rate_hallucination": 0.8612,
+          "rate_control": 0.0,
+          "discriminative_power": 0.8612
+        }
+      },
+      "latency_ms": {
+        "mean": 8.84,
+        "median": 10.08
+      },
+      "elapsed_seconds": 176.79
+    },
+    {
+      "suite": "truthfulqa",
+      "suite_label": "TruthfulQA",
+      "n_pairs": 790,
+      "metrics": {
+        "precision": 1.0,
+        "recall": 0.9797,
+        "f1": 0.9898,
+        "accuracy": 0.9899,
+        "confusion_matrix": {
+          "tp": 774,
+          "fp": 0,
+          "fn": 16,
+          "tn": 790
+        }
+      },
+      "isi_distribution": {
+        "hallucination": {
+          "mean": 0.0696,
+          "median": 0.0349
+        },
+        "control": {
+          "mean": 1.0,
+          "median": 1.0
+        },
+        "separation": 0.9304
+      },
+      "zones": {
+        "hallucination": {
+          "F-S": 679,
+          "B": 95,
+          "A": 16
+        },
+        "control": {
+          "A": 790
+        }
+      },
+      "module_stats": {
+        "lexical_baseline_score": {
+          "fires_hallucination": 731,
+          "fires_control": 0,
+          "rate_hallucination": 0.9253,
+          "rate_control": 0.0,
+          "discriminative_power": 0.9253
+        },
+        "source_target_guard": {
+          "fires_hallucination": 56,
+          "fires_control": 0,
+          "rate_hallucination": 0.0709,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0709
+        },
+        "flow_penalty": {
+          "fires_hallucination": 0,
+          "fires_control": 0,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0
+        },
+        "negation_penalty": {
+          "fires_hallucination": 240,
+          "fires_control": 0,
+          "rate_hallucination": 0.3038,
+          "rate_control": 0.0,
+          "discriminative_power": 0.3038
+        },
+        "cre_isi": {
+          "fires_hallucination": 0,
+          "fires_control": 0,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0
+        },
+        "arithmetic_penalty": {
+          "fires_hallucination": 0,
+          "fires_control": 0,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0
+        },
+        "reference_penalty": {
+          "fires_hallucination": 0,
+          "fires_control": 0,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0
+        },
+        "r3_1_guard": {
+          "fires_hallucination": 649,
+          "fires_control": 0,
+          "rate_hallucination": 0.8215,
+          "rate_control": 0.0,
+          "discriminative_power": 0.8215
+        },
+        "r3_2_topological": {
+          "fires_hallucination": 50,
+          "fires_control": 0,
+          "rate_hallucination": 0.0633,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0633
+        },
+        "r3_3_drift": {
+          "fires_hallucination": 0,
+          "fires_control": 0,
+          "rate_hallucination": 0.0,
+          "rate_control": 0.0,
+          "discriminative_power": 0.0
+        },
+        "r3_4_entropy": {
+          "fires_hallucination": 368,
+          "fires_control": 0,
+          "rate_hallucination": 0.4658,
+          "rate_control": 0.0,
+          "discriminative_power": 0.4658
+        },
+        "r3_5_kolmogorov": {
+          "fires_hallucination": 349,
+          "fires_control": 0,
+          "rate_hallucination": 0.4418,
+          "rate_control": 0.0,
+          "discriminative_power": 0.4418
+        },
+        "r3_6_surprisal": {
+          "fires_hallucination": 557,
+          "fires_control": 0,
+          "rate_hallucination": 0.7051,
+          "rate_control": 0.0,
+          "discriminative_power": 0.7051
+        }
+      },
+      "latency_ms": {
+        "mean": 2.79,
+        "median": 3.49
+      },
+      "elapsed_seconds": 4.41
+    }
+  ],
+  "medhallu": {
+    "n_records": 10000,
+    "detection_rate": "85.10%",
+    "identity_fp": "0.01%"
+  },
+  "fingerprint": {
+    "n_records": 10000,
+    "kappa_P": 0.4039,
+    "A_App": {
+      "mean": 0.1472,
+      "median": 0.1323,
+      "p5": 0.0983,
+      "p10": 0.1032,
+      "p25": 0.1141,
+      "p50": 0.1323,
+      "p75": 0.1696,
+      "p90": 0.217,
+      "p95": 0.24
+    },
+    "A_B": {
+      "mean": 0.6635,
+      "median": 0.6748,
+      "p5": 0.5436,
+      "p10": 0.5723,
+      "p25": 0.6059,
+      "p50": 0.6748,
+      "p75": 0.7066,
+      "p90": 0.7641,
+      "p95": 0.7849
+    },
+    "zero_overlap": true,
+    "elapsed_seconds": 24.13
+  },
+  "adversarial": {
+    "n_cases": 10,
+    "type_A_detected": "1/5",
+    "type_B_correct": "0/5",
+    "type_B_rescued_by_fingerprint": "5/5",
+    "results": [
+      {
+        "id": "A1",
+        "type": "detect",
+        "expected": "COLAPSO_ESTRUCTURAL",
+        "got": "COHERENTE",
+        "isi": 0.913043,
+        "fp_dist": 0.0084,
+        "fp_rescue": false,
+        "modules_fired": [],
+        "correct": false
+      },
+      {
+        "id": "A2",
+        "type": "detect",
+        "expected": "COLAPSO_ESTRUCTURAL",
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.1,
+        "fp_dist": 0.1942,
+        "fp_rescue": true,
+        "modules_fired": [
+          "r3_2_topological"
+        ],
+        "correct": true
+      },
+      {
+        "id": "A3",
+        "type": "detect",
+        "expected": "COLAPSO_ESTRUCTURAL",
+        "got": "COHERENTE",
+        "isi": 0.888889,
+        "fp_dist": 0.0147,
+        "fp_rescue": false,
+        "modules_fired": [],
+        "correct": false
+      },
+      {
+        "id": "A4",
+        "type": "detect",
+        "expected": "COLAPSO_ESTRUCTURAL",
+        "got": "RUPTURA_RECUPERABLE",
+        "isi": 0.4225,
+        "fp_dist": 0.0091,
+        "fp_rescue": true,
+        "modules_fired": [
+          "source_target_guard"
+        ],
+        "correct": false
+      },
+      {
+        "id": "A5",
+        "type": "detect",
+        "expected": "COLAPSO_ESTRUCTURAL",
+        "got": "COHERENTE",
+        "isi": 1.0,
+        "fp_dist": 0.0149,
+        "fp_rescue": false,
+        "modules_fired": [],
+        "correct": false
+      },
+      {
+        "id": "B1",
+        "type": "no_detect",
+        "expected": "COHERENTE",
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.124548,
+        "fp_dist": 0.1554,
+        "fp_rescue": true,
+        "modules_fired": [
+          "cre_isi"
+        ],
+        "correct": false
+      },
+      {
+        "id": "B2",
+        "type": "no_detect",
+        "expected": "COHERENTE",
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.04751,
+        "fp_dist": 0.1294,
+        "fp_rescue": true,
+        "modules_fired": [
+          "flow_penalty",
+          "negation_penalty",
+          "cre_isi",
+          "r3_6_surprisal"
+        ],
+        "correct": false
+      },
+      {
+        "id": "B3",
+        "type": "no_detect",
+        "expected": "COHERENTE",
+        "got": "RUPTURA_RECUPERABLE",
+        "isi": 0.366667,
+        "fp_dist": 0.0516,
+        "fp_rescue": true,
+        "modules_fired": [
+          "r3_6_surprisal"
+        ],
+        "correct": false
+      },
+      {
+        "id": "B4",
+        "type": "no_detect",
+        "expected": "COHERENTE",
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.136209,
+        "fp_dist": 0.2146,
+        "fp_rescue": true,
+        "modules_fired": [
+          "cre_isi"
+        ],
+        "correct": false
+      },
+      {
+        "id": "B5",
+        "type": "no_detect",
+        "expected": "COHERENTE",
+        "got": "RUPTURA_RECUPERABLE",
+        "isi": 0.434211,
+        "fp_dist": 0.3896,
+        "fp_rescue": true,
+        "modules_fired": [
+          "r3_6_surprisal"
+        ],
+        "correct": false
+      }
+    ],
+    "elapsed_seconds": 0.04
+  },
+  "ablation": {
+    "n_pairs": 20790,
+    "baseline_f1": 0.8901,
+    "modules": {
+      "lexical_baseline_score": {
+        "f1": 0.8818,
+        "delta": 0.0083,
+        "precision": 0.9987,
+        "recall": 0.7894,
+        "elapsed_seconds": 320.17
+      },
+      "source_target_guard": {
+        "f1": 0.89,
+        "delta": 0.0001,
+        "precision": 0.9987,
+        "recall": 0.8026,
+        "elapsed_seconds": 318.15
+      },
+      "flow_penalty": {
+        "f1": 0.8901,
+        "delta": 0.0,
+        "precision": 0.9987,
+        "recall": 0.8028,
+        "elapsed_seconds": 296.6
+      },
+      "negation_penalty": {
+        "f1": 0.89,
+        "delta": 0.0001,
+        "precision": 0.9987,
+        "recall": 0.8026,
+        "elapsed_seconds": 305.6
+      },
+      "cre_isi": {
+        "f1": 0.8901,
+        "delta": 0.0,
+        "precision": 0.9987,
+        "recall": 0.8027,
+        "elapsed_seconds": 130.86
+      },
+      "arithmetic_penalty": {
+        "f1": 0.8901,
+        "delta": 0.0,
+        "precision": 0.9987,
+        "recall": 0.8028,
+        "elapsed_seconds": 331.08
+      },
+      "reference_penalty": {
+        "f1": 0.8901,
+        "delta": 0.0,
+        "precision": 0.9987,
+        "recall": 0.8028,
+        "elapsed_seconds": 288.16
+      },
+      "r3_1_guard": {
+        "f1": 0.8892,
+        "delta": 0.0009,
+        "precision": 0.9987,
+        "recall": 0.8013,
+        "elapsed_seconds": 331.43
+      },
+      "r3_2_topological": {
+        "f1": 0.9991,
+        "delta": -0.109,
+        "precision": 0.9989,
+        "recall": 0.9993,
+        "elapsed_seconds": 310.97
+      },
+      "r3_3_drift": {
+        "f1": 0.8906,
+        "delta": -0.0005,
+        "precision": 1.0,
+        "recall": 0.8028,
+        "elapsed_seconds": 322.35
+      },
+      "r3_4_entropy": {
+        "f1": 0.89,
+        "delta": 0.0001,
+        "precision": 0.9987,
+        "recall": 0.8027,
+        "elapsed_seconds": 325.77
+      },
+      "r3_5_kolmogorov": {
+        "f1": 0.8901,
+        "delta": 0.0,
+        "precision": 0.9987,
+        "recall": 0.8027,
+        "elapsed_seconds": 328.06
+      },
+      "r3_6_surprisal": {
+        "f1": 0.8901,
+        "delta": 0.0,
+        "precision": 0.9987,
+        "recall": 0.8028,
+        "elapsed_seconds": 308.16
+      }
+    },
+    "elapsed_seconds": 4239.05
+  },
+  "total_elapsed_seconds": 4608.63
+}
