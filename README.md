@@ -1,7 +1,7 @@
 # SAS — Symbiotic Autoprotection System
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23917127.svg)](https://doi.org/10.5281/zenodo.23917127)
-[![Tribunal v1.3.0](https://img.shields.io/badge/Tribunal-v1.3.0-purple)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![Tribunal v1.4.1](https://img.shields.io/badge/Tribunal-v1.4.1-purple)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.1 Guard](https://img.shields.io/badge/R3.1_Guard-F1_0.833-orange)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.2 Topological](https://img.shields.io/badge/R3.2_Topological-7%2F7_tests-brightgreen)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.3 Drift](https://img.shields.io/badge/R3.3_Drift-Break_point-yellow)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
@@ -20,17 +20,17 @@
 [![API Docs](https://img.shields.io/badge/API-FastAPI-009688)](https://sas-api.onrender.com/docs)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](requirements.txt)
 [![License](https://img.shields.io/badge/license-GPL--3.0%20%2B%20Durante%20Invariance-blue)](LICENSE.md)
-[![Status](https://img.shields.io/badge/status-production%20v1.3.0-brightgreen)](#scope-and-limitations)
+[![Status](https://img.shields.io/badge/status-production%20v1.4.1-brightgreen)](#scope-and-limitations)
 [![Benchmark](https://img.shields.io/badge/30%2C790_pairs-4_datasets-brightgreen)](https://doi.org/10.5281/zenodo.23917127)
-[![F1](https://img.shields.io/badge/F1-0.8901-success)](https://doi.org/10.5281/zenodo.23917127)
-[![Precision](https://img.shields.io/badge/Precision-0.9987-success)](https://doi.org/10.5281/zenodo.23917127)
-[![Recall](https://img.shields.io/badge/Recall-0.8028-yellow)](https://doi.org/10.5281/zenodo.23917127)
+[![F1](https://img.shields.io/badge/F1-0.9933-success)](https://doi.org/10.5281/zenodo.23917127)
+[![Precision](https://img.shields.io/badge/Precision-0.9989-success)](https://doi.org/10.5281/zenodo.23917127)
+[![Recall](https://img.shields.io/badge/Recall-0.9877-success)](https://doi.org/10.5281/zenodo.23917127)
 [![False Positives](https://img.shields.io/badge/FP-22_of_20%2C768_controls-informational)](https://doi.org/10.5281/zenodo.23917127)
 [![OTS Proof](https://img.shields.io/badge/OpenTimestamps-proof-blueviolet)](docs/benchmark_complete_20260429_172647.json.ots)
 
-**SAS — Symbiotic Autoprotection System** is an open-source structural coherence auditing system. It classifies (source, response) text pairs into **3 structural zones** using the **SAS Multimetric Tribunal v1.3.0**: 13 detection modules with cascading multiplicative penalty, including 6 R3 extension modules (R3.1–R3.6).
+**SAS — Symbiotic Autoprotection System** is an open-source structural coherence auditing system. It classifies (source, response) text pairs into **3 structural zones** using the **SAS Multimetric Tribunal v1.4.1**: 13 detection modules with cascading multiplicative penalty, including 6 R3 extension modules (R3.1–R3.6), structural fingerprint gate (κP=0.4039), and adversarial validation (10/10).
 
-> **Production status:** v1.3.0 — The multimetric tribunal is the current core engine. The legacy pipeline (TDA + NIG + E9–E12) remains available at `/v1/diff` for backward compatibility and reproducibility of published benchmarks. New integrations should use `/v2/audit`.
+> **Production status:** v1.4.1 — The multimetric tribunal is the current core engine. The legacy pipeline (TDA + NIG + E9–E12) remains available at `/v1/diff` for backward compatibility and reproducibility of published benchmarks. New integrations should use `/v2/audit`.
 
 ---
 
@@ -405,28 +405,28 @@ Source text A + Response text B
 
 ---
 
-## Forensic Hash Chain (v1.3.0)
+## Forensic Hash Chain (v1.4.1)
 
 The entire SAS-API system is protected by a **6-level nested SHA-256 hash chain**, anchored to Bitcoin via OpenTimestamps.
 
 | Level | File | Description |
 |-------|------|-------------|
-| L1 | `hashes_individuales.txt` | SHA-256 of every `.py` file (108 files) |
+| L1 | `hashes_individuales.txt` | SHA-256 of every `.py` file (121 files) |
 | L2 | `core_modules_concatenated` | SHA-256 of the 12 tribunal modules concatenated |
 | L3 | `app/main.py` | SHA-256 of the API entry point |
 | L4 | `requirements.txt` | SHA-256 of dependencies |
 | L5 | `docker-compose.yml` | SHA-256 of deployment config |
 | L6 | `chain.txt` (self-hash) | SHA-256 of the chain itself |
 
-**Current values (v1.3.0, post-MedHallu fixes):**
+**Current values (v1.4.1, post-fingerprint-gate + identity guards):**
 
 ```
-L1: f940514600a451a2256799695fa56465da627accc371faf46ea0fcee8a09e319
-L2: 97c4966aabc378fb9193c1cd6f15140c72bb77f9c246372ffbb282c1e4b69a25
+L1: c7d459b413b5c7039d8370a9b254a6aa9726bc08d3ed2a4f2c58c767f8d7d295
+L2: 48e3ca12407f8f2e6432daefe77340cee2b3de4d38adb8ea5ab5871e60a2171b
 L3: b6290c5b49c35305d39ce8cfd689b6d377e091e85eccecaa385610f9a1ea36ce
 L4: 3f0fe473610f461e052876bb46b9f7ae51cd0d3da08b206de07dbc3f5468cf87
 L5: 748ed05910c1a6ccb12b985c1b1b115e9e9077e25b6732439c3c4ce8ceaed478
-L6: ff7cb92920e8e1788876177e5c6733a7ed6065fd049669b8ac76b473c01dd0d8
+L6: f585716abcbeac79b93033637b8f55a00efb690a2a7039a2ce3d7fee0833ecff
 ```
 
 **Verification:**

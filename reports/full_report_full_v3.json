@@ -1,8 +1,8 @@
 {
   "script": "reproduce.py",
-  "version": "v1.4.0",
+  "version": "v1.4.1",
   "mode": "full",
-  "timestamp": "2026-11-06T14:25:30Z",
+  "timestamp": "2026-11-07T00:19:44Z",
   "kappa_d": 0.56,
   "kappa_r": 0.15,
   "kappa_P": 0.4039,
@@ -454,7 +454,7 @@
   },
   "adversarial": {
     "n_cases": 10,
-    "type_A_detected": "1/5",
+    "type_A_detected": "5/5",
     "type_B_correct": "0/5",
     "type_B_rescued_by_fingerprint": "5/5",
     "results": [
@@ -462,12 +462,14 @@
         "id": "A1",
         "type": "detect",
         "expected": "COLAPSO_ESTRUCTURAL",
-        "got": "COHERENTE",
-        "isi": 0.913043,
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.140625,
         "fp_dist": 0.0084,
-        "fp_rescue": false,
-        "modules_fired": [],
-        "correct": false
+        "fp_rescue": true,
+        "modules_fired": [
+          "source_target_guard"
+        ],
+        "correct": true
       },
       {
         "id": "A2",
@@ -486,36 +488,40 @@
         "id": "A3",
         "type": "detect",
         "expected": "COLAPSO_ESTRUCTURAL",
-        "got": "COHERENTE",
-        "isi": 0.888889,
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.09,
         "fp_dist": 0.0147,
-        "fp_rescue": false,
-        "modules_fired": [],
-        "correct": false
+        "fp_rescue": true,
+        "modules_fired": [
+          "source_target_guard"
+        ],
+        "correct": true
       },
       {
         "id": "A4",
         "type": "detect",
         "expected": "COLAPSO_ESTRUCTURAL",
-        "got": "RUPTURA_RECUPERABLE",
-        "isi": 0.4225,
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.140625,
         "fp_dist": 0.0091,
         "fp_rescue": true,
         "modules_fired": [
           "source_target_guard"
         ],
-        "correct": false
+        "correct": true
       },
       {
         "id": "A5",
         "type": "detect",
         "expected": "COLAPSO_ESTRUCTURAL",
-        "got": "COHERENTE",
-        "isi": 1.0,
+        "got": "COLAPSO_ESTRUCTURAL",
+        "isi": 0.09,
         "fp_dist": 0.0149,
-        "fp_rescue": false,
-        "modules_fired": [],
-        "correct": false
+        "fp_rescue": true,
+        "modules_fired": [
+          "source_target_guard"
+        ],
+        "correct": true
       },
       {
         "id": "B1",
@@ -535,10 +541,11 @@
         "type": "no_detect",
         "expected": "COHERENTE",
         "got": "COLAPSO_ESTRUCTURAL",
-        "isi": 0.04751,
+        "isi": 0.01287,
         "fp_dist": 0.1294,
         "fp_rescue": true,
         "modules_fired": [
+          "source_target_guard",
           "flow_penalty",
           "negation_penalty",
           "cre_isi",

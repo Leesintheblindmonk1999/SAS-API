@@ -646,12 +646,18 @@ class TribunalMultimetrico:
                                     rsp_before, rsp_after = before, after
             # Check inversion: source "A caused B" vs response "B caused A"
             try:
-                # If source entities before verb appear after verb in response
-                overlap_before_after = len(src_before & rsp_after)
-                overlap_after_before = len(src_after & rsp_before)
-                if overlap_before_after >= 1 and overlap_after_before >= 1:
-                    mutaciones.append("inversión de relación causal")
-                    penalizacion *= 0.30
+                # Guard: identical text (A->A) must not fire. In identical
+                # text, before/after sets are equal, so the "inversion" is
+                # an artifact of common words appearing on both sides.
+                if src_before == rsp_before and src_after == rsp_after:
+                    pass  # No inversion: same argument order
+                else:
+                    # If source entities before verb appear after verb in response
+                    overlap_before_after = len(src_before & rsp_after)
+                    overlap_after_before = len(src_after & rsp_before)
+                    if overlap_before_after >= 1 and overlap_after_before >= 1:
+                        mutaciones.append("inversión de relación causal")
+                        penalizacion *= 0.30
             except NameError:
                 pass  # Not enough causal structure to compare
 
@@ -687,7 +693,10 @@ class TribunalMultimetrico:
             )
             pairs_a = set(quantity_pair_pattern.findall(text_a))
             pairs_b = set(quantity_pair_pattern.findall(text_b))
-            if pairs_a and pairs_b:
+            # Guard: identical sets (A->A) must not fire. When both texts
+            # contain the same (value, unit) pairs, any magnitude ratio is
+            # an intra-text comparison, not a mutation.
+            if pairs_a and pairs_b and pairs_a != pairs_b:
                 # Find same-unit pairs with different magnitudes
                 units_a: Dict[str, List[float]] = {}
                 units_b: Dict[str, List[float]] = {}
