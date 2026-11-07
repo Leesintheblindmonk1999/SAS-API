@@ -84,9 +84,9 @@ sas demo-audit "The Eiffel Tower is in Paris, France." "The Eiffel Tower is in B
 
 ---
 
-## SAS Multimetric Tribunal v1.3.0
+## SAS Multimetric Tribunal v1.4.1
 
-The **SAS Multimetric Tribunal** is the core classification engine. It evaluates (source, response) pairs through **13 detection modules** with cascading multiplicative penalty, producing an **Invariant Similarity Index (ISI)** that determines the structural zone.
+The **SAS Multimetric Tribunal** is the core classification engine. It evaluates (source, response) pairs through **13 detection modules** with cascading multiplicative penalty, producing an **Invariant Similarity Index (ISI)** that determines the structural zone, plus a structural fingerprint gate (κP = 0.4039) for paraphrase rescue.
 
 Full repository: [https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 
@@ -212,15 +212,15 @@ Localizes hallucination at the token level by computing per-token self-informati
 | **RECOVERABLE RUPTURE** | **B** | κR ≤ ISI < κD (0.56) | HIGH | Review / Flag |
 | **COHERENT** | **A** | ISI ≥ κD (0.56) | LOW | Pass |
 
-### Benchmark (v1.3.0 — 30,790 pairs, 4 public datasets)
+### Benchmark (v1.4.1 — 30,790 pairs, 4 public datasets)
 
 | Dataset | Pairs | Precision | Recall | F1 | Accuracy | FP |
 |---------|------:|----------:|-------:|---:|---------:|---:|
-| HaluEval-QA | 10,000 | 0.9999 | 0.8111 | 0.8956 | 0.9055 | 1 |
-| HaluEval-Dialogue | 10,000 | 0.9973 | 0.7805 | 0.8757 | 0.8892 | 21 |
-| TruthfulQA | 790 | 1.0000 | 0.9797 | 0.9898 | 0.9899 | 0 |
+| HaluEval-QA | 10,000 | 0.9999 | 0.9989 | 0.9994 | 0.9994 | 1 |
+| HaluEval-Dialogue | 10,000 | 0.9979 | 0.9763 | 0.9870 | 0.9871 | 21 |
+| TruthfulQA | 790 | 1.0000 | 0.9899 | 0.9949 | 0.9949 | 0 |
 | MedHallu (format-controlled) | 10,000 | — | 0.8510 | — | — | 1 |
-| **AGGREGATE** | **30,790** | **0.9987** | **0.8028** | **0.8901** | **0.9009** | **22** |
+| **AGGREGATE** | **30,790** | **0.9989** | **0.9877** | **0.9933** | **0.9933** | **22** |
 
 **MedHallu note:** precision is not directly comparable because the negative class (A→A') is a length artifact (A' = 15% of A). The format-controlled detection rate (85.10%) is the correct metric for this corpus.
 
@@ -322,7 +322,7 @@ Hosted Free plan: **50 requests/day**, no credit card.
 
 | Client | Package | Runtime | Status |
 |---|---|---|---|
-| **sas-multimetric-tribunal** (core engine) | [GitHub](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal) | Python 3.10+ | **v1.3.0** — 13 modules (7 core + R3.1–R3.6) |
+| **sas-multimetric-tribunal** (core engine) | [GitHub](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal) | Python 3.10+ | **v1.4.1** — 13 modules (7 core + R3.1–R3.6) + fingerprint gate |
 | Python CLI / client | [`sas-client`](https://pypi.org/project/sas-client/) | Python 3.10+ | Published on PyPI |
 | Node.js / TypeScript SDK | [`sas-audit-client`](https://www.npmjs.com/package/sas-audit-client) | Node.js 18+ | Published on npm |
 
@@ -474,7 +474,7 @@ The R0 audit validates the research pipeline infrastructure and baseline stabili
 | `sample_strat_4800` | 4,800 | 200 | 3,600 / 1,200 | 0.743 | 0.741 |
 | `sample_strat_12000` | 12,000 | 500 | 9,000 / 3,000 | 0.742 | 0.740 |
 
-> **Note:** These R0 results use clean-self controls (source = A_clean, response = A_clean), which can inflate performance for dissimilarity-based modules. They validate infrastructure and baseline stability, not production-grade hallucination detection. The current production engine is the multimetric tribunal (v1.3.0), which uses a fundamentally different architecture.
+> **Note:** These R0 results use clean-self controls (source = A_clean, response = A_clean), which can inflate performance for dissimilarity-based modules. They validate infrastructure and baseline stability, not production-grade hallucination detection. The current production engine is the multimetric tribunal (v1.4.1), which uses a fundamentally different architecture.
 
 ### R1-D — Structural Evaluation over Declarative Corpus
 
@@ -539,7 +539,7 @@ SAS is open source under **GPL-3.0 + Durante Invariance License**. The following
 | **SAS On-Premise License** | Private deployment in customer infrastructure. Commercial license, implementation support, internal integration. | **From USD 15,000/year** |
 | **Technical Pilot** | Initial audit, guided integration, technical report, and validation on customer-specific cases. | **USD 1,500–3,000 one-time payment** |
 
-> **Enterprise & On-Premise:** The multimetric tribunal is complete and deployed as `sas-multimetric-tribunal` v1.3.0 (13 modules). SLA-backed commitments are available.
+> **Enterprise & On-Premise:** The multimetric tribunal is complete and deployed as `sas-multimetric-tribunal` v1.4.1 (13 modules + fingerprint gate). SLA-backed commitments are available.
 
 📧 **Commercial inquiries:** [duranteg2@gmail.com](mailto:duranteg2@gmail.com)
 
@@ -549,7 +549,7 @@ SAS is open source under **GPL-3.0 + Durante Invariance License**. The following
 
 ### Production
 
-- **[sas-multimetric-tribunal](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)** — Core classification engine v1.3.0 with R3.1–R3.6 (13 modules, 3-zone structural classification)
+- **[sas-multimetric-tribunal](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)** — Core classification engine v1.4.1 with R3.1–R3.6 (13 modules, 3-zone structural classification) + fingerprint gate
 - **[SAS-API](https://github.com/Leesintheblindmonk1999/SAS-API)** — This repository: hosted API service
 - **[sas-landing](https://leesintheblindmonk1999.github.io/sas-landing/)** — Interactive landing page with live demo
 - **[sas-client](https://pypi.org/project/sas-client/)** — Python SDK / CLI
@@ -603,12 +603,12 @@ If you use SAS or the multimetric tribunal in academic work, please cite:
   doi = {10.5281/zenodo.23917127},
   year = {2026},
   publisher = {Zenodo},
-  note = {Regulatory submission v1.3.0. Previous version: 10.5281/zenodo.19702379}
+  note = {Regulatory submission v1.4.1. Previous version: 10.5281/zenodo.19702379}
 }
 
 @software{durante2026tribunal,
   author = {Gonzalo Emir Durante},
-  title = {SAS Multimetric Tribunal v1.3.0},
+  title = {SAS Multimetric Tribunal v1.4.1},
   note = {DOI 10.32388/T420IV (Qeios)},
   year = {2026}
 }
