@@ -616,6 +616,8 @@ If you use SAS or the multimetric tribunal in academic work, please cite:
 
 Use of `κD = 0.56` for semantic invariance, hallucination detection, or similar structural coherence auditing requires citation of the public SAS repository / DOI.
 
+**Legal registry:** The project is registered with the Argentine Digital Administration (TAD) under **EX-2026-18792778**. The hash chain (L1–L6) is anchored to Bitcoin via OpenTimestamps (proofs in `hash_chain/`).
+
 ---
 
 ## License
