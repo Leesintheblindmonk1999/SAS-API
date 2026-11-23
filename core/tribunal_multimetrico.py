@@ -211,6 +211,23 @@ except ImportError:
         compute_surprisal_analysis = None
         logger.warning("R3.6 Surprisal Analysis no disponible")
 
+# ════════════════════════════════════════════════════════════════════════════
+# R3.7 Numeric Consistency (import opcional)
+# ════════════════════════════════════════════════════════════════════════════
+
+R3_7_NUMERIC_ENABLED: bool = True
+_R3_7_NUMERIC_AVAILABLE: bool = False
+try:
+    from core.r3_7_numeric_consistency import compute_numeric_consistency
+    _R3_7_NUMERIC_AVAILABLE = True
+except ImportError:
+    try:
+        from r3_7_numeric_consistency import compute_numeric_consistency
+        _R3_7_NUMERIC_AVAILABLE = True
+    except ImportError:
+        compute_numeric_consistency = None
+        logger.warning("R3.7 Numeric Consistency no disponible")
+
 logger = logging.getLogger(__name__)
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -321,6 +338,7 @@ class VeredictoTribunal:
     r3_4_entropy: float
     r3_5_kolmogorov: float
     r3_6_surprisal: float
+    r3_7_numeric: float
 
     # Métricas compuestas
     isi_hard: float          # Mínimo de métricas core
@@ -363,6 +381,7 @@ class VeredictoTribunal:
             "r3_4_entropy": round(self.r3_4_entropy, 6),
             "r3_5_kolmogorov": round(self.r3_5_kolmogorov, 6),
             "r3_6_surprisal": round(self.r3_6_surprisal, 6),
+            "r3_7_numeric": round(self.r3_7_numeric, 6),
             "isi_hard": round(self.isi_hard, 6),
             "isi_soft": round(self.isi_soft, 6),
             "isi_final": round(self.isi_final, 6),
@@ -1045,6 +1064,32 @@ class TribunalMultimetrico:
             logger.debug(f"R3.6 Surprisal error: {e}")
             return 1.0, False, f"R3.6 Surprisal: error ({e})", None
 
+    def _calcular_r3_7_numeric(
+        self, text_a: str, text_b: str
+    ) -> Tuple[float, bool, str]:
+        """Evalúa el R3.7 Numeric Consistency Module.
+
+        Módulo opcional. Si no está disponible, devuelve 1.0 (sin
+        penalización) y disparo=False.
+
+        Returns:
+            Tuple[valor, disparo, descripción]
+        """
+        if not R3_7_NUMERIC_ENABLED or not _R3_7_NUMERIC_AVAILABLE:
+            return 1.0, False, "R3.7 Numeric: no disponible"
+        try:
+            result = compute_numeric_consistency(text_a, text_b)
+            if result["fired"]:
+                return result["penalty"], True, (
+                    f"R3.7 Numeric: inconsistencia "
+                    f"(neighbor={result['n_neighbor_traps']}, "
+                    f"fabricated={result['n_fabricated']})"
+                )
+            return 1.0, False, "R3.7 Numeric: consistente"
+        except Exception as e:
+            logger.debug(f"R3.7 Numeric error: {e}")
+            return 1.0, False, f"R3.7 Numeric: error ({e})"
+
     def _calcular_r3_1_guard(
         self, text_a: str, text_b: str
     ) -> Tuple[float, bool, str, Optional[Dict]]:
@@ -1138,6 +1183,7 @@ class TribunalMultimetrico:
         r34_val, r34_fired, r34_desc, r34_details = self._calcular_r3_4_entropy(source, response)
         r35_val, r35_fired, r35_desc, r35_details = self._calcular_r3_5_kolmogorov(source, response)
         r36_val, r36_fired, r36_desc, r36_details = self._calcular_r3_6_surprisal(source, response)
+        r37_val, r37_fired, r37_desc = self._calcular_r3_7_numeric(source, response)
 
         # ── 2. Construir mapa de métricas ──────────────────────────────────
         metricas_raw = {
@@ -1205,6 +1251,8 @@ class TribunalMultimetrico:
             penalizaciones.append(r35_val)
         if r36_fired:
             penalizaciones.append(r36_val)
+        if r37_fired:
+            penalizaciones.append(r37_val)
 
         if penalizaciones:
             # Producto de penalizaciones (cada una < 1.0 si disparó)
@@ -1345,6 +1393,14 @@ class TribunalMultimetrico:
                 descripcion=r36_desc,
                 peso=0.04,
             ),
+            EvidenciaModulo(
+                nombre="r3_7_numeric",
+                valor=r37_val,
+                disparo=r37_fired,
+                umbral=0.50,
+                descripcion=r37_desc,
+                peso=0.04,
+            ),
         ]
 
         modulos_disparados = [m for m in todas_evidencias if m.disparo]
@@ -1372,6 +1428,7 @@ class TribunalMultimetrico:
             f"  R3.4 Entropy     : {r34_val:.6f}  {'⚠ DISPARO' if r34_fired else '✓ OK'}",
             f"  R3.5 Kolmogorov  : {r35_val:.6f}  {'⚠ DISPARO' if r35_fired else '✓ OK'}",
             f"  R3.6 Surprisal   : {r36_val:.6f}  {'⚠ DISPARO' if r36_fired else '✓ OK'}",
+            f"  R3.7 Numeric     : {r37_val:.6f}  {'⚠ DISPARO' if r37_fired else '✓ OK'}",
             sep,
             "ISI COMPUESTO (penalización multiplicativa en cascada)",
             f"  ISI_HARD = {isi_hard:.6f}  [min(lexical, STG, CRE)]",
@@ -1413,6 +1470,7 @@ class TribunalMultimetrico:
             r3_4_entropy=r34_val,
             r3_5_kolmogorov=r35_val,
             r3_6_surprisal=r36_val,
+            r3_7_numeric=r37_val,
             isi_hard=round(isi_hard, 6),
             isi_soft=round(isi_soft, 6),
             isi_final=round(isi_final, 6),
