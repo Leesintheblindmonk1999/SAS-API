@@ -68,6 +68,7 @@ core_modules = [
     "core/r3_4_entropy.py",
     "core/r3_5_kolmogorov.py",
     "core/r3_6_surprisal.py",
+    "core/r3_7_numeric_consistency.py",
     "core/negation_probe.py",
     "core/flow_coherence.py",
     "core/ricci_enhanced_cre.py",
