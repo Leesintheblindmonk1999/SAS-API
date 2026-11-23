@@ -1,13 +1,14 @@
 # SAS — Symbiotic Autoprotection System
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23917127.svg)](https://doi.org/10.5281/zenodo.23917127)
-[![Tribunal v1.4.1](https://img.shields.io/badge/Tribunal-v1.4.1-purple)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![Tribunal v1.4.2](https://img.shields.io/badge/Tribunal-v1.4.2-purple)](https://github.com/Leesintheblindmonk1999/SAS-API)
 [![R3.1 Guard](https://img.shields.io/badge/R3.1_Guard-F1_0.833-orange)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.2 Topological](https://img.shields.io/badge/R3.2_Topological-7%2F7_tests-brightgreen)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.3 Drift](https://img.shields.io/badge/R3.3_Drift-Break_point-yellow)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.4 Entropy](https://img.shields.io/badge/R3.4_Entropy-%CE%94H-yellow)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![R3.5 Kolmogorov](https://img.shields.io/badge/R3.5_Kolmogorov-zlib-yellow)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
-[![R3.6 Surprisal](https://img.shields.io/badge/R3.6_Surprisal-Token--level-yellow)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+[![R3.6 Surprisal](https://img.shields.io/badge/R3.6_Surprisal-Token--level-yellow)](https://github.com/Leesintheblindmonk1999/SAS-API)
+[![R3.7 Numeric](https://img.shields.io/badge/R3.7_Numeric-Consistency-brightgreen)](https://github.com/Leesintheblindmonk1999/SAS-API)
 [![kC Threshold](https://img.shields.io/badge/kC_Threshold-abstentions_58%E2%86%921-blue)](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
 [![Hash Chain](https://img.shields.io/badge/Hash_Chain-Bitcoin_anchored-blueviolet)](hash_chain/README.md)
 [![R0 Audit](https://img.shields.io/badge/R0%20Audit-Zenodo%2020647532-blueviolet)](https://zenodo.org/records/20647532)
@@ -20,17 +21,17 @@
 [![API Docs](https://img.shields.io/badge/API-FastAPI-009688)](https://sas-api.onrender.com/docs)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](requirements.txt)
 [![License](https://img.shields.io/badge/license-GPL--3.0%20%2B%20Durante%20Invariance-blue)](LICENSE.md)
-[![Status](https://img.shields.io/badge/status-production%20v1.4.1-brightgreen)](#scope-and-limitations)
-[![Benchmark](https://img.shields.io/badge/30%2C790_pairs-4_datasets-brightgreen)](https://doi.org/10.5281/zenodo.23917127)
+[![Status](https://img.shields.io/badge/status-production%20v1.4.2-brightgreen)](#scope-and-limitations)
+[![Benchmark](https://img.shields.io/badge/30%2C790%2B_pairs-9_domains-brightgreen)](https://doi.org/10.5281/zenodo.23917127)
 [![F1](https://img.shields.io/badge/F1-0.9933-success)](https://doi.org/10.5281/zenodo.23917127)
 [![Precision](https://img.shields.io/badge/Precision-0.9989-success)](https://doi.org/10.5281/zenodo.23917127)
 [![Recall](https://img.shields.io/badge/Recall-0.9877-success)](https://doi.org/10.5281/zenodo.23917127)
 [![False Positives](https://img.shields.io/badge/FP-22_of_20%2C768_controls-informational)](https://doi.org/10.5281/zenodo.23917127)
 [![OTS Proof](https://img.shields.io/badge/OpenTimestamps-proof-blueviolet)](docs/benchmark_complete_20260429_172647.json.ots)
 
-**SAS — Symbiotic Autoprotection System** is an open-source structural coherence auditing system. It classifies (source, response) text pairs into **3 structural zones** using the **SAS Multimetric Tribunal v1.4.1**: 13 detection modules with cascading multiplicative penalty, including 6 R3 extension modules (R3.1–R3.6), structural fingerprint gate (κP=0.4039), and adversarial validation (10/10).
+**SAS — Symbiotic Autoprotection System** is an open-source structural coherence auditing system. It classifies (source, response) text pairs into **3 structural zones** using the **SAS Multimetric Tribunal v1.4.2**: 14 detection modules with cascading multiplicative penalty, including 7 R3 extension modules (R3.1–R3.7), structural fingerprint gate (κP=0.4039), adversarial validation (10/10), and evaluation across 9 domains.
 
-> **Production status:** v1.4.1 — The multimetric tribunal is the current core engine. The legacy pipeline (TDA + NIG + E9–E12) remains available at `/v1/diff` for backward compatibility and reproducibility of published benchmarks. New integrations should use `/v2/audit`.
+> **Production status:** v1.4.2 — The multimetric tribunal is the current core engine. The legacy pipeline (TDA + NIG + E9–E12) remains available at `/v1/diff` for backward compatibility and reproducibility of published benchmarks. New integrations should use `/v2/audit`.
 
 ---
 
@@ -84,11 +85,11 @@ sas demo-audit "The Eiffel Tower is in Paris, France." "The Eiffel Tower is in B
 
 ---
 
-## SAS Multimetric Tribunal v1.4.1
+## SAS Multimetric Tribunal v1.4.2
 
-The **SAS Multimetric Tribunal** is the core classification engine. It evaluates (source, response) pairs through **13 detection modules** with cascading multiplicative penalty, producing an **Invariant Similarity Index (ISI)** that determines the structural zone, plus a structural fingerprint gate (κP = 0.4039) for paraphrase rescue.
+The **SAS Multimetric Tribunal** is the core classification engine. It evaluates (source, response) pairs through **14 detection modules** with cascading multiplicative penalty, producing an **Invariant Similarity Index (ISI)** that determines the structural zone, plus a structural fingerprint gate (κP = 0.4039) for paraphrase rescue.
 
-Full repository: [https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal](https://github.com/Leesintheblindmonk1999/sas-multimetric-tribunal)
+Core implementation: [core/tribunal_multimetrico.py](core/tribunal_multimetrico.py)
 
 ### Architecture
 
@@ -97,7 +98,7 @@ ISI_HARD  = min(lexical_baseline, source_target_guard, cre_isi)
 ISI_FINAL = ISI_HARD × Π(penalties from fired modules) + R3.2 additive adjustment
 ```
 
-### 13 Detection Modules
+### 14 Detection Modules
 
 | # | Module | Function | Weight |
 |---|--------|----------|--------|
@@ -114,6 +115,7 @@ ISI_FINAL = ISI_HARD × Π(penalties from fired modules) + R3.2 additive adjustm
 | 11 | `r3_4_entropy` | Entropy differential (Shannon ΔH) | 0.06 |
 | 12 | `r3_5_kolmogorov` | Kolmogorov complexity ratio (zlib) | 0.04 |
 | 13 | `r3_6_surprisal` | Surprisal analysis (token-level) | 0.04 |
+| 14 | `r3_7_numeric` | Numeric consistency (neighbor-trap + fabricated-number detection) | 0.04 |
 
 ### R3.1 Differential Guard
 
@@ -193,6 +195,19 @@ Approximates Kolmogorov complexity via zlib LZ77 compression. C(source) / C(resp
 
 ### R3.6 Surprisal Analysis
 
+### R3.7 Numeric Consistency
+
+Detects numeric inconsistencies between source and response: neighbor-trap numbers (response uses a number from the source's context rather than its target) and fabricated numbers (response introduces numbers absent from the source).
+
+| Component | Function |
+|-----------|----------|
+| **Number extraction** | Currencies ($£€¥), decimals, percentages, integers |
+| **Neighbor trap** | Response number matches context number but not target |
+| **Fabricated number** | Response number not found anywhere in source |
+| **Penalty** | 0.50 multiplicative when fired |
+
+**Evaluation on financiero_venra (2,282 pairs):** numeric_neighbor_trap detection 91.5% (up from 55.4% without R3.7). Full tribunal F1 0.9824, recall 0.9654. ~30 µs/pair. 100% stdlib.
+
 Localizes hallucination at the token level by computing per-token self-information using a character n-gram language model built from the source.
 
 | Component | Function |
@@ -212,15 +227,21 @@ Localizes hallucination at the token level by computing per-token self-informati
 | **RECOVERABLE RUPTURE** | **B** | κR ≤ ISI < κD (0.56) | HIGH | Review / Flag |
 | **COHERENT** | **A** | ISI ≥ κD (0.56) | LOW | Pass |
 
-### Benchmark (v1.4.1 — 30,790 pairs, 4 public datasets)
+### Benchmark (v1.4.2 — 30,790+ pairs, 9 domains)
 
-| Dataset | Pairs | Precision | Recall | F1 | Accuracy | FP |
-|---------|------:|----------:|-------:|---:|---------:|---:|
-| HaluEval-QA | 10,000 | 0.9999 | 0.9989 | 0.9994 | 0.9994 | 1 |
-| HaluEval-Dialogue | 10,000 | 0.9979 | 0.9763 | 0.9870 | 0.9871 | 21 |
-| TruthfulQA | 790 | 1.0000 | 0.9899 | 0.9949 | 0.9949 | 0 |
-| MedHallu (format-controlled) | 10,000 | — | 0.8510 | — | — | 1 |
-| **AGGREGATE** | **30,790** | **0.9989** | **0.9877** | **0.9933** | **0.9933** | **22** |
+| Dataset | Domain | Pairs | Precision | Recall | F1 | FP |
+|---------|--------|------:|----------:|-------:|---:|---:|
+| HaluEval-QA | QA factual | 10,000 | 0.9999 | 0.9989 | 0.9994 | 1 |
+| HaluEval-Dialogue | Dialogue | 10,000 | 0.9979 | 0.9763 | 0.9870 | 21 |
+| TruthfulQA | Short-answer QA | 790 | 1.0000 | 0.9899 | 0.9949 | 0 |
+| MedHallu (format-controlled) | Medicine | 10,000 | — | 0.8510 | — | 1 |
+| financiero_venra | Finance RAG | 2,282 | — | 0.9654 | 0.9824 | — |
+| HaluEval-2.0 Science | Science | 200 | 0.9596 | 0.9896 | 0.9744 | 8 |
+| HaluEval-2.0 Bio-Medical | Biomedicine | 200 | 0.9415 | 0.8656 | 0.9020 | 10 |
+| HaluEval-2.0 Education | Education | 200 | 0.9112 | 0.8556 | 0.8825 | 15 |
+| HaluEval-2.0 Finance | Finance (QA) | 200 | 0.7650 | 1.0000 | 0.8669 | 47 |
+| HaluEval-2.0 Open-Domain | Open-domain | 200 | 0.9462 | 0.4757 | 0.6331 | 5 |
+| **AGGREGATE (core 3)** | **—** | **20,790** | **0.9989** | **0.9877** | **0.9933** | **22** |
 
 **MedHallu note:** precision is not directly comparable because the negative class (A→A') is a length artifact (A' = 15% of A). The format-controlled detection rate (85.10%) is the correct metric for this corpus.
 
